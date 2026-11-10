@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lotería</string>
+
+    <!-- Galería -->
+    <string name="gallery_empty_subtitle">Sin cartas todavía</string>
+    <string name="empty_title">Arma tu baraja</string>
+    <string name="empty_body">Añade fotos o dibujos desde tu galería. Se guardan en la app aunque borres la foto original.</string>
+    <string name="add_images">Añadir imágenes</string>
+    <string name="adding_images">Añadiendo…</string>
+    <string name="play">Jugar</string>
+    <string name="more_options">Más opciones</string>
+    <string name="select">Seleccionar</string>
+    <string name="delete_all">Eliminar todas</string>
+    <string name="select_cards">Selecciona cartas</string>
+    <string name="all">Todas</string>
+    <string name="delete">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="close_selection">Salir de la selección</string>
+    <string name="delete_selected_message">Se quitarán de tu baraja. Las fotos originales de tu galería no se tocan.</string>
+    <string name="delete_all_title">¿Eliminar todas las cartas?</string>
+    <string name="card_thumb_description">Carta %1$d</string>
+
+    <!-- Juego -->
+    <string name="restart">Reiniciar</string>
+    <string name="exit">Salir</string>
+    <string name="exit_title">¿Salir del juego?</string>
+    <string name="exit_message">Volverás a tu baraja. Esta partida no se guardará.</string>
+    <string name="end_title">Se acabaron las cartas</string>
+    <string name="card_position">Carta %1$d de %2$d</string>
+    <string name="image_error">No se pudo mostrar esta imagen</string>
+
+    <plurals name="cards_count">
+        <item quantity="one">%d carta</item>
+        <item quantity="many">%d cartas</item>
+        <item quantity="other">%d cartas</item>
+    </plurals>
+    <plurals name="of_cards">
+        <item quantity="one">de %d carta</item>
+        <item quantity="many">de %d cartas</item>
+        <item quantity="other">de %d cartas</item>
+    </plurals>
+    <plurals name="selected_count">
+        <item quantity="one">%d seleccionada</item>
+        <item quantity="many">%d seleccionadas</item>
+        <item quantity="other">%d seleccionadas</item>
+    </plurals>
+    <plurals name="delete_selected_title">
+        <item quantity="one">¿Eliminar %d carta?</item>
+        <item quantity="many">¿Eliminar %d cartas?</item>
+        <item quantity="other">¿Eliminar %d cartas?</item>
+    </plurals>
+    <plurals name="delete_all_message">
+        <item quantity="one">Se quitará la única carta para empezar de cero. No se puede deshacer.</item>
+        <item quantity="many">Se quitarán las %d cartas para empezar de cero. No se puede deshacer.</item>
+        <item quantity="other">Se quitarán las %d cartas para empezar de cero. No se puede deshacer.</item>
+    </plurals>
+    <plurals name="end_message">
+        <item quantity="one">Ya salió la única carta. ¿Barajamos otra vez?</item>
+        <item quantity="many">Ya salieron las %d. ¿Barajamos otra vez?</item>
+        <item quantity="other">Ya salieron las %d. ¿Barajamos otra vez?</item>
+    </plurals>
+    <plurals name="added_message">
+        <item quantity="one">Se añadió %d carta</item>
+        <item quantity="many">Se añadieron %d cartas</item>
+        <item quantity="other">Se añadieron %d cartas</item>
+    </plurals>
+    <plurals name="failed_message">
+        <item quantity="one">No se pudo añadir %d imagen</item>
+        <item quantity="many">No se pudieron añadir %d imágenes</item>
+        <item quantity="other">No se pudieron añadir %d imágenes</item>
+    </plurals>
+    <plurals name="deleted_message">
+        <item quantity="one">Se eliminó %d carta</item>
+        <item quantity="many">Se eliminaron %d cartas</item>
+        <item quantity="other">Se eliminaron %d cartas</item>
+    </plurals>
+</resources>

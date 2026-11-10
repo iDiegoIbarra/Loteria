@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lotería · Comps v1</title>
+<!--
+THESIS: La carta es la fiesta. Refuso la galería gris genérica y el reproductor con controles flotantes; la app es un muro de color al sol que enmarca las cartas del usuario.
+OWN-WORLD: Muros planos de color Barragán (rosa mexicano #E4007C como plano dominante), papel picado recortado en amarillo cempasúchil, verde, añil, naranja, jacaranda y turquesa; suelo One UI #F2F2F2, píldoras contenidas, esquinas 14–26dp, Roboto. Juego sobre negro #080808.
+STORY: El cantor ve su baraja, añade fotos con un pulgar, pulsa Jugar, voltea el teléfono y los jugadores leen la carta enorme; el contador le dice dónde va.
+FIRST VIEWPORT: Teléfono vertical: muro rosa 39.67% con papel picado arriba y "Lotería" Light 40sp; cuadrícula 4 columnas; footer con "Añadir imágenes" (tonal) y "Jugar" (rosa) al alcance del pulgar.
+FORM: Dirección 7 de 7 de la lista propia (muros de Barragán), fusionada con papel picado fijado por el brief; staging: zona de visualización arriba / interacción abajo de One UI. Seed f260dea3.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rosa:#E4007C; --rosa-deep:#B00060; --rosa-tint:#FCDDEC; --rosa-ink:#8A004B;
+    --cempa:#F5A800; --verde:#00A35C; --anil:#2F5DD8; --naranja:#FF6A13; --jacaranda:#6B3FA0; --turquesa:#00A9B5;
+    --ground:#F2F2F2; --surface:#FFFFFF; --ink:#141414; --ink-2:#5C5C5C; --danger:#D7261E;
+    --night:#080808; --night-2:#1A1A1A; --night-3:#262626; --night-ink:#F5F5F5; --night-ink-2:#A8A8A8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Roboto,system-ui,sans-serif;background:#26232A;color:#EEE;padding:48px 56px 96px;-webkit-font-smoothing:antialiased}
+  header.board{max-width:1500px;margin:0 auto 40px}
+  header.board h1{font-weight:300;font-size:44px;letter-spacing:-.01em;color:#fff}
+  header.board p{color:#BDB6C4;font-size:16px;margin-top:10px;max-width:70ch;line-height:1.5}
+  .swatches{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .sw{display:flex;align-items:center;gap:8px;font-size:13px;color:#CFC8D6;background:#322E37;border-radius:999px;padding:6px 12px 6px 6px}
+  .sw i{width:22px;height:22px;border-radius:50%;display:block}
+  section.row{max-width:1500px;margin:0 auto 56px}
+  section.row h2{font-weight:500;font-size:20px;color:#fff;margin-bottom:6px}
+  section.row > p{color:#A9A1B1;font-size:14px;margin-bottom:22px;max-width:80ch;line-height:1.5}
+  .frames{display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start}
+  figure{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+  figcaption{font-size:14px;color:#D9D2E0}
+  figcaption b{font-weight:500;color:#fff}
+  figcaption span{display:block;color:#9A92A3;font-size:13px;margin-top:3px;max-width:44ch;line-height:1.4}
+
+  .device{width:fit-content;background:#0E0E10;padding:9px;border-radius:52px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6),0 0 0 1px #3A3640 inset}
+  .device.tab{border-radius:34px;padding:14px}
+  .screen{position:relative;overflow:hidden;border-radius:44px;display:flex;flex-direction:column;background:var(--ground);color:var(--ink)}
+  .tab .screen{border-radius:22px}
+  .zoom-p{zoom:.66} .zoom-l{zoom:.66} .zoom-t{zoom:.6}
+
+  .sb{height:36px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:14px;font-weight:500;position:relative;z-index:3}
+  .sb .ic{display:flex;gap:6px;align-items:center}
+  .sb .ic i{display:block;background:currentColor;border-radius:2px}
+  .gesture{height:22px;flex:none;display:flex;align-items:center;justify-content:center}
+  .gesture::after{content:"";width:120px;height:4px;border-radius:4px;background:currentColor;opacity:.55}
+
+  .wall{position:relative;flex:none;background:var(--rosa);color:#fff;display:flex;flex-direction:column;overflow:hidden}
+  .wall .sun{position:absolute;inset:0;background:linear-gradient(118deg,rgba(255,255,255,0) 52%,rgba(0,0,0,.10) 52.2%);pointer-events:none}
+  .wall .papel{position:absolute;left:0;right:0;top:30px;z-index:2}
+  .wall .title{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 24px 0;position:relative;z-index:2}
+  .wall .title h3{font-weight:300;font-size:40px;letter-spacing:-.01em;line-height:1.1}
+  .wall .title small{font-size:16px;opacity:.92;margin-top:8px}
+  .appbar{height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px;position:relative;z-index:2}
+  .iconbtn{width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:inherit}
+  .iconbtn svg{width:24px;height:24px;fill:currentColor}
+  .chk{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:500}
+  .chk i{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:block}
+  .labeled{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;padding:0 14px;height:44px;border-radius:999px}
+  .labeled svg{width:22px;height:22px;fill:currentColor}
+
+  .grid{flex:1;overflow:hidden;padding:14px 24px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start}
+  .tile img,.pager img{width:100%;height:100%;object-fit:cover;display:block}
+  .tile{position:relative;aspect-ratio:1500/2125;border-radius:14px;overflow:hidden;background:#ddd;transition:transform .2s}
+  .tile svg{width:100%;height:100%;display:block}
+  .tile.sel{transform:scale(.9);box-shadow:0 0 0 3px var(--rosa)}
+  .tile .mark{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.25)}
+  .tile.sel .mark{background:var(--rosa);border-color:#fff;display:flex;align-items:center;justify-content:center}
+  .tile.sel .mark svg{width:15px;height:15px;fill:#fff}
+
+  .footer{flex:none;display:flex;gap:10px;padding:14px 24px 10px;background:linear-gradient(to bottom,rgba(242,242,242,0),var(--ground) 30%);margin-top:-30px;position:relative;z-index:2}
+  /* Píldora: padding lateral fijo de 20dp; el texto nunca toca el borde ni se recorta */
+  .pill{height:54px;min-width:0;padding:0 20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;line-height:1;font-weight:500;flex:1;white-space:nowrap}
+  .pill svg{width:20px;height:20px;flex:none;fill:currentColor;margin-left:-2px}
+  .pill.tonal{background:var(--rosa-tint);color:var(--rosa-ink);flex:0 0 auto}
+  .pill.play{background:var(--rosa);color:#fff;flex:1 1 auto;font-size:16px;box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+  .pill.off{background:#E2E2E2;color:#8C8C8C;box-shadow:none}
+  .pill.dark{background:var(--night-3);color:var(--night-ink)}
+
+  .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 40px 40px}
+  .empty .fan{position:relative;width:170px;height:150px;margin-bottom:22px}
+  .empty .fan b{position:absolute;left:53px;top:10px;width:64px;height:96px;border-radius:12px;border:2.5px dashed #BDBDBD;background:#fff}
+  .empty .fan b:nth-child(1){transform:rotate(-16deg) translate(-34px,12px)}
+  .empty .fan b:nth-child(3){transform:rotate(16deg) translate(34px,12px)}
+  .empty .fan b:nth-child(2){border:none;background:var(--rosa-tint);display:flex;align-items:center;justify-content:center;z-index:1}
+  .empty .fan b:nth-child(2) svg{width:34px;height:34px;fill:var(--rosa)}
+  .empty h4{font-size:19px;font-weight:500;color:var(--ink)}
+  .empty p{font-size:16px;color:var(--ink-2);margin-top:8px;line-height:1.45;max-width:30ch}
+
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:5}
+  .dialog{position:absolute;left:12px;right:12px;bottom:30px;background:#fff;border-radius:26px;z-index:6;padding:24px 24px 10px;color:var(--ink);overflow:hidden}
+  .dialog h5{font-size:20px;font-weight:500}
+  .dialog p{font-size:16px;color:var(--ink-2);margin-top:10px;line-height:1.45}
+  .dialog .acts{display:flex;margin-top:14px}
+  .dialog .acts a{flex:1;text-align:center;font-size:17px;font-weight:500;height:52px;display:flex;align-items:center;justify-content:center;color:var(--rosa-ink)}
+  .dialog .acts a+a{border-left:1px solid #E3E3E3}
+  .dialog .acts a.danger{color:var(--danger)}
+  .dialog.night{background:var(--night-2);color:var(--night-ink)}
+  .dialog.night p{color:var(--night-ink-2)}
+  .dialog.night .acts a{color:#FF7DB8}
+  .dialog.night .acts a+a{border-color:#333}
+  .dialog.fiesta{padding-top:84px}
+  .dialog.fiesta .papel{position:absolute;top:0;left:0;right:0}
+  .menu{position:absolute;right:14px;background:#fff;border-radius:20px;box-shadow:0 12px 30px -8px rgba(0,0,0,.35);padding:8px 0;z-index:6;min-width:210px}
+  .menu a{display:block;padding:14px 22px;font-size:17px;color:var(--ink)}
+
+  .game{background:var(--night);color:var(--night-ink)}
+  .counter{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:92px}
+  .counter .n{font-size:34px;font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .counter .n em{font-style:normal;font-weight:400;font-size:22px;color:var(--night-ink-2)}
+  .track{width:132px;height:4px;border-radius:4px;background:#2E2E2E;overflow:hidden}
+  .track i{display:block;height:100%;background:var(--rosa);border-radius:4px}
+  .pager{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .pager .card{border-radius:18px;overflow:hidden;flex:none}
+  .pager .card svg{display:block;width:100%;height:100%}
+  .pager .peek{position:absolute;top:50%;transform:translateY(-50%) scale(.88);border-radius:18px;overflow:hidden;opacity:.3}
+  .pager .peek svg{display:block;width:100%;height:100%}
+  .gfoot{flex:none;display:flex;gap:10px;padding:14px 24px 8px}
+</style>
+</head>
+<body>
+<header class="board">
+  <h1>Lotería · Comps v1</h1>
+  <p>Presentador de cartas personalizadas para Galaxy S26 Ultra y Tab S11 Ultra. Estructura One UI (visualización arriba, interacción abajo, diálogos al pie) con un muro de color estilo Barragán y papel picado. Las cartas de muestra representan tus fotos; en la app real se verán tus imágenes tal cual.</p>
+  <div class="swatches">
+    <span class="sw"><i style="background:#E4007C"></i>Rosa mexicano · acción y muro</span>
+    <span class="sw"><i style="background:#F5A800"></i>Cempasúchil</span>
+    <span class="sw"><i style="background:#00A35C"></i>Verde</span>
+    <span class="sw"><i style="background:#2F5DD8"></i>Añil</span>
+    <span class="sw"><i style="background:#FF6A13"></i>Naranja</span>
+    <span class="sw"><i style="background:#6B3FA0"></i>Jacaranda</span>
+    <span class="sw"><i style="background:#F2F2F2"></i>Suelo One UI</span>
+    <span class="sw"><i style="background:#080808;box-shadow:0 0 0 1px #555 inset"></i>Noche (juego)</span>
+    <span class="sw"><i style="background:#D7261E"></i>Peligro</span>
+  </div>
+</header>
+
+<section class="row">
+  <h2>1 · Galería (teléfono vertical)</h2>
+  <p>Muro rosa al 39.67% de la altura (barra expandida de One UI) con papel picado; colapsa al desplazar. Cuadrícula de 4 columnas con cartas 2:3. Acciones principales en el footer, al alcance del pulgar.</p>
+  <div class="frames" id="row-gallery"></div>
+</section>
+
+<section class="row">
+  <h2>2 · Selección y eliminación</h2>
+  <p>Mantener presionada una carta activa la selección; la barra superior muestra "Todas" y "Eliminar". El menú ⋮ ofrece "Eliminar todas". Ambas piden confirmación con un diálogo al pie (One UI).</p>
+  <div class="frames" id="row-select"></div>
+</section>
+
+<section class="row">
+  <h2>3 · Juego (teléfono)</h2>
+  <p>Fondo noche, carta completa (Fit) como protagonista, con las vecinas asomando para invitar a deslizar. Contador grande arriba para el cantor. El papel picado aparece solo cuando se acaban las cartas.</p>
+  <div class="frames" id="row-game"></div>
+</section>
+
+<section class="row">
+  <h2>4 · Horizontal y tablet</h2>
+  <p>En horizontal no hay barra expandida (regla One UI): el contador pasa a la izquierda y los botones a la derecha. En tablet el muro rosa se vuelve un panel vertical del 37.5% con las acciones. En tablet vertical la carta alcanza su tamaño máximo para que todos la lean desde el lugar del cantor.</p>
+  <div class="frames" id="row-wide"></div>
+</section>
+
+<script>
+const I={
+  add:'<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>',
+  play:'<path d="M8 5v14l11-7z"/>',
+  more:'<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>',
+  del:'<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>',
+  check:'<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>',
+  refresh:'<path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.990 5.990 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>',
+  exit:'<path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5a2 2 0 00-2 2v4h2V5h14v14H5v-4H3v4a2 2 0 002 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>',
+  photos:'<path d="M22 16V4c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2zm-11-4l2.03 2.71L16 11l4 5H8l3-4zM2 6v14c0 1.1.9 2 2 2h14v-2H4V6H2z"/>'
+};
+const ic=(n)=>`<svg viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+
+const PP=['#F5A800','#00A35C','#2F5DD8','#FF6A13','#6B3FA0','#00A9B5'];
+function flagPath(){
+  let d='M0 0 L50 0 L50 46';
+  for(let x=50;x>0;x-=10){d+=` L${x-5} 54 L${x-10} 46`;}
+  d+=' Z';
+  const circ=(cx,cy,r)=>` M${cx-r} ${cy} a${r} ${r} 0 1 0 ${2*r} 0 a${r} ${r} 0 1 0 ${-2*r} 0 Z`;
+  const dia=(x,y,s)=>` M${x} ${y-s} L${x+s} ${y} L${x} ${y+s} L${x-s} ${y} Z`;
+  d+=circ(25,20,6)+dia(25,9,3)+dia(25,31,3)+dia(14,20,3)+dia(36,20,3);
+  d+=dia(10,8,3.5)+dia(40,8,3.5)+dia(10,32,3.5)+dia(40,32,3.5);
+  [10,20,30,40].forEach(x=>d+=circ(x,41,1.6));
+  return d;
+}
+const FP=flagPath();
+function papel(w,{h=70,colors=PP,sag=10,scale=1}={}){
+  const fw=58*scale, n=Math.ceil(w/fw)+1;
+  let s=`<svg class="papel" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">`;
+  s+=`<path d="M-4 4 Q ${w/2} ${4+sag*2} ${w+4} 4" stroke="rgba(255,255,255,.75)" stroke-width="1.5" fill="none"/>`;
+  for(let i=0;i<n;i++){
+    const x=i*fw+4*scale, t=Math.min(1,Math.max(0,(x+25*scale)/w)), y=4+sag*4*t*(1-t);
+    const rot=(i%2?2.5:-2.5);
+    s+=`<g transform="translate(${x} ${y}) rotate(${rot} ${25*scale} 0) scale(${scale})"><path d="${FP}" fill="${colors[i%colors.length]}" fill-rule="evenodd"/></g>`;
+  }
+  return s+'</svg>';
+}
+
+function star(cx,cy,R,r){let p=[];for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rad=i%2?r:R;p.push((cx+rad*Math.cos(a)).toFixed(1)+','+(cy+rad*Math.sin(a)).toFixed(1));}return p.join(' ');}
+function rays(){let s='';for(let i=0;i<12;i++){const a=i*Math.PI/6;s+=`<line x1="${100+52*Math.cos(a)}" y1="${128+52*Math.sin(a)}" x2="${100+68*Math.cos(a)}" y2="${128+68*Math.sin(a)}"/>`;}return s;}
+const CARDS=[
+ {n:'La abuela',bg:'#FFE3C2',art:`<ellipse cx="100" cy="118" rx="44" ry="30" fill="#4A2E22"/><circle cx="100" cy="80" r="17" fill="#4A2E22"/><path d="M42 238 Q100 168 158 238Z" fill="#E4007C"/><circle cx="100" cy="140" r="38" fill="#E9B48A"/><g stroke="#222" stroke-width="3" fill="none"><circle cx="86" cy="138" r="9"/><circle cx="114" cy="138" r="9"/><line x1="95" y1="138" x2="105" y2="138"/><path d="M88 158 Q100 168 112 158" stroke-linecap="round"/></g>`},
+ {n:'El Toby',bg:'#D7F0E3',art:`<ellipse cx="58" cy="120" rx="15" ry="32" fill="#7A4A26" transform="rotate(18 58 120)"/><ellipse cx="142" cy="120" rx="15" ry="32" fill="#7A4A26" transform="rotate(-18 142 120)"/><ellipse cx="100" cy="140" rx="46" ry="44" fill="#C98B4F"/><ellipse cx="100" cy="165" rx="24" ry="18" fill="#EBC79C"/><circle cx="84" cy="130" r="5.5" fill="#1A1A1A"/><circle cx="116" cy="130" r="5.5" fill="#1A1A1A"/><ellipse cx="100" cy="155" rx="10" ry="7" fill="#1A1A1A"/><ellipse cx="100" cy="178" rx="7" ry="9" fill="#F06A8A"/>`},
+ {n:'El sol de Mazatlán',bg:'#FFF1B8',art:`<g stroke="#FF6A13" stroke-width="6" stroke-linecap="round">${rays()}</g><circle cx="100" cy="128" r="40" fill="#F5A800"/><rect x="13" y="196" width="174" height="44" fill="#2F5DD8"/><path d="M13 206 q13 -8 26 0 t26 0 t26 0 t26 0 t26 0 t26 0 t26 0" stroke="#fff" stroke-width="3" fill="none"/>`},
+ {n:'La bici',bg:'#DDE6FF',art:`<g fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="60" cy="168" r="32" stroke="#1E1E1E" stroke-width="7"/><circle cx="140" cy="168" r="32" stroke="#1E1E1E" stroke-width="7"/><path d="M60 168 L90 118 L140 168 M90 118 L126 118 L140 168 M90 118 L82 100 M120 104 L132 104 M126 118 L122 104" stroke="#E4007C" stroke-width="7"/><path d="M72 100 L94 100" stroke="#1E1E1E" stroke-width="7"/></g>`},
+ {n:'El mango',bg:'#FFE0D1',art:`<ellipse cx="100" cy="146" rx="50" ry="64" fill="#FF8A00" transform="rotate(-25 100 146)"/><ellipse cx="82" cy="126" rx="16" ry="26" fill="#FFB547" transform="rotate(-25 82 126)"/><path d="M118 86 Q150 60 168 80 Q140 98 118 86Z" fill="#00A35C"/><path d="M112 92 L120 76" stroke="#5A3A1A" stroke-width="5" stroke-linecap="round"/>`},
+ {n:'La tía Lupe',bg:'#FFE0EC',art:`<path d="M100 206 C38 164 38 100 74 94 C90 91 100 104 100 116 C100 104 110 91 126 94 C162 100 162 164 100 206Z" fill="#E4007C"/><path d="M76 112 Q80 102 90 104" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>`},
+ {n:'La luna',bg:'#1F2A5A',art:`<circle cx="106" cy="138" r="54" fill="#F7E7A6"/><circle cx="130" cy="120" r="48" fill="#1F2A5A"/><polygon points="${star(150,186,10,4)}" fill="#F5A800"/><polygon points="${star(58,72,7,3)}" fill="#fff"/><polygon points="${star(158,70,6,2.5)}" fill="#fff"/>`},
+ {n:'El nopal',bg:'#E7F5D8',art:`<path d="M70 238 L78 198 L122 198 L130 238Z" fill="#C2552D"/><ellipse cx="100" cy="160" rx="26" ry="40" fill="#2E9E55"/><ellipse cx="68" cy="118" rx="20" ry="30" fill="#2E9E55" transform="rotate(-28 68 118)"/><ellipse cx="134" cy="112" rx="20" ry="30" fill="#2E9E55" transform="rotate(26 134 112)"/><circle cx="58" cy="88" r="8" fill="#E4007C"/><circle cx="146" cy="80" r="8" fill="#E4007C"/><circle cx="100" cy="118" r="8" fill="#E4007C"/>`},
+ {n:'El pastel',bg:'#F3E2FF',art:`<rect x="46" y="150" width="108" height="66" rx="10" fill="#fff"/><rect x="46" y="150" width="108" height="20" rx="10" fill="#E4007C"/><rect x="62" y="110" width="76" height="44" rx="10" fill="#FFD3E6"/><g fill="#6B3FA0"><rect x="76" y="86" width="7" height="26" rx="3"/><rect x="96" y="86" width="7" height="26" rx="3"/><rect x="116" y="86" width="7" height="26" rx="3"/></g><g fill="#F5A800"><ellipse cx="79.5" cy="78" rx="5" ry="8"/><ellipse cx="99.5" cy="78" rx="5" ry="8"/><ellipse cx="119.5" cy="78" rx="5" ry="8"/></g>`},
+ {n:'La estrella',bg:'#E2F6F7',art:`<polygon points="${star(100,138,66,28)}" fill="#F5A800"/><polygon points="${star(100,138,30,13)}" fill="#FFD25A"/>`},
+ {n:'La guitarra',bg:'#FFEBD6',art:`<rect x="94" y="46" width="12" height="90" rx="3" fill="#3A2215"/><circle cx="100" cy="176" r="40" fill="#C46A2B"/><circle cx="100" cy="128" r="30" fill="#C46A2B"/><circle cx="100" cy="164" r="11" fill="#3A2215"/><rect x="84" y="196" width="32" height="8" rx="3" fill="#3A2215"/>`},
+ {n:'El paraguas',bg:'#DCEBFF',art:`<path d="M38 132 A62 62 0 0 1 162 132 Q151 120 141 132 Q131 120 120 132 Q110 120 100 132 Q90 120 80 132 Q69 120 59 132 Q49 120 38 132Z" fill="#6B3FA0"/><path d="M100 132 L100 206 Q100 222 86 222 Q74 222 74 210" stroke="#222" stroke-width="6" fill="none" stroke-linecap="round"/><line x1="100" y1="62" x2="100" y2="72" stroke="#222" stroke-width="5" stroke-linecap="round"/>`}
+];
+// Cartas reales de Diego (normalizadas a 1500×2125)
+const R=1500/2125;
+function card(i){
+  const n=((i%54)+54)%54+1, nn=String(n).padStart(2,'0');
+  return `<img src="../../cards/normalized/Loteria_${nn}.jpg" alt="Carta ${n}">`;
+}
+
+const sb=(time='16:20')=>`<div class="sb"><span>${time}</span><span class="ic"><i style="width:16px;height:11px;clip-path:polygon(0 100%,100% 0,100% 100%)"></i><i style="width:15px;height:11px;clip-path:polygon(0 0,100% 0,50% 100%)"></i><i style="width:22px;height:11px;border-radius:3px"></i></span></div>`;
+const tiles=(n,sel=[])=>Array.from({length:n},(_,i)=>`<div class="tile ${sel.includes(i)?'sel':''}">${card(i)}${sel.length?`<span class="mark">${sel.includes(i)?ic('check'):''}</span>`:''}</div>`).join('');
+const PW=412, PH=915;
+
+function wall({h,title,sub,bar}){
+  return `<div class="wall" style="height:${h}px"><div class="sun"></div>${sb()}${papel(PW)}<div class="title"><h3>${title}</h3><small>${sub}</small></div><div class="appbar">${bar}</div></div>`;
+}
+const barNormal=`<span></span><span><a class="iconbtn" aria-label="Más opciones">${ic('more')}</a></span>`;
+const footer=(enabled=true)=>`<div class="footer"><a class="pill tonal">${ic('add')}Añadir imágenes</a><a class="pill play ${enabled?'':'off'}" aria-disabled="${!enabled}">${ic('play')}Jugar</a></div>`;
+const phone=(inner,cls='')=>`<div class="device zoom-p"><div class="screen ${cls}" style="width:${PW}px;height:${PH}px">${inner}</div></div>`;
+const fig=(device,title,note)=>`<figure>${device}<figcaption><b>${title}</b><span>${note}</span></figcaption></figure>`;
+const WALL_H=Math.round(PH*0.3967);
+const gest=(c)=>`<div class="gesture" style="color:${c}"></div>`;
+
+const empty = phone(
+  wall({h:WALL_H,title:'Lotería',sub:'Sin cartas todavía',bar:barNormal}) +
+  `<div class="empty"><div class="fan"><b></b><b>${ic('photos')}</b><b></b></div><h4>Arma tu baraja</h4><p>Añade fotos o dibujos desde tu galería. Se guardan en la app aunque borres la foto original.</p></div>`+
+  footer(false)+gest('#000'));
+const full = phone(
+  wall({h:WALL_H,title:'Lotería',sub:'54 cartas',bar:barNormal}) +
+  `<div class="grid">${tiles(16)}</div>`+ footer(true)+gest('#000'));
+const collapsed = phone(
+  `<div class="wall" style="height:${36+64}px"><div class="sun"></div>${sb()}<div class="appbar" style="height:64px"><span style="font-size:22px;font-weight:500">Lotería</span><span style="display:flex;align-items:center"><span style="font-size:15px;opacity:.9;margin-right:4px">54 cartas</span><a class="iconbtn" aria-label="Más opciones">${ic('more')}</a></span></div></div>`+
+  `<div class="grid">${Array.from({length:28},(_,i)=>`<div class="tile">${card(i+8)}</div>`).join('')}</div>`+ footer(true)+gest('#000'));
+document.getElementById('row-gallery').innerHTML =
+  fig(empty,'Galería vacía','Estado vacío One UI con mensaje; "Jugar" deshabilitado hasta tener cartas.')+
+  fig(full,'Galería con cartas','Muro expandido con papel picado. ⋮ abre "Eliminar todas".')+
+  fig(collapsed,'Galería desplazada','El muro colapsa a barra compacta; el footer permanece.');
+
+const sel=[1,4,5];
+const barSel=`<span class="chk"><i></i>Todas</span><a class="labeled" aria-label="Eliminar seleccionadas">${ic('del')}Eliminar</a>`;
+const selecting = phone(
+  wall({h:WALL_H,title:'3 seleccionadas',sub:'de 54 cartas',bar:barSel}) +
+  `<div class="grid">${tiles(16,sel)}</div>`+gest('#000'));
+const confirmSel = phone(
+  wall({h:WALL_H,title:'3 seleccionadas',sub:'de 54 cartas',bar:barSel}) +
+  `<div class="grid">${tiles(16,sel)}</div>`+gest('#000')+
+  `<div class="scrim"></div><div class="dialog"><h5>¿Eliminar 3 cartas?</h5><p>Se quitarán de tu baraja. Las fotos originales de tu galería no se tocan.</p><div class="acts"><a>Cancelar</a><a class="danger">Eliminar</a></div></div>`);
+const menuAll = phone(
+  wall({h:WALL_H,title:'Lotería',sub:'54 cartas',bar:barNormal}) +
+  `<div class="grid">${tiles(16)}</div>`+footer(true)+gest('#000')+
+  `<div class="menu" style="top:${WALL_H-52}px"><a>Seleccionar</a><a style="color:var(--danger)">Eliminar todas</a></div>`);
+const confirmAll = phone(
+  wall({h:WALL_H,title:'Lotería',sub:'54 cartas',bar:barNormal}) +
+  `<div class="grid">${tiles(16)}</div>`+footer(true)+gest('#000')+
+  `<div class="scrim"></div><div class="dialog"><h5>¿Eliminar todas las cartas?</h5><p>Se quitarán las 54 cartas para empezar de cero. No se puede deshacer.</p><div class="acts"><a>Cancelar</a><a class="danger">Eliminar todas</a></div></div>`);
+document.getElementById('row-select').innerHTML =
+  fig(selecting,'Modo selección','Pulsación larga. Las cartas elegidas se encogen con anillo rosa; el footer se oculta.')+
+  fig(confirmSel,'Confirmar selección','Diálogo al pie, acción destructiva en rojo.')+
+  fig(menuAll,'Menú ⋮','"Eliminar todas" en rojo para empezar de cero.')+
+  fig(confirmAll,'Confirmar eliminar todas','Mismo patrón de diálogo; indica cuántas cartas se borran.');
+
+function pagerHTML(w,h,cur,{peek=18,gap=14,flex=false}={}){
+  const availW=w-2*(peek+gap), cw=Math.min(availW,(h-8)*R), chh=cw/R;
+  return `<div class="pager" style="height:${h}px${flex?';flex:1':''}">
+    <div class="peek" style="width:${cw}px;height:${chh}px;left:${w/2-cw/2-gap-cw}px">${card(cur-2)}</div>
+    <div class="card" style="width:${cw}px;height:${chh}px">${card(cur-1)}</div>
+    <div class="peek" style="width:${cw}px;height:${chh}px;left:${w/2+cw/2+gap}px">${card(cur)}</div></div>`;
+}
+const counter=(n,t)=>`<div class="counter"><div class="n">${n} <em>/ ${t}</em></div><div class="track"><i style="width:${n/t*100}%"></i></div></div>`;
+const gfoot=`<div class="gfoot"><a class="pill dark">${ic('refresh')}Reiniciar</a><a class="pill dark">${ic('exit')}Salir</a></div>`;
+const PAGER_H=PH-36-92-76-22;
+const game = phone(`${sb()}${counter(12,54)}${pagerHTML(PW,PAGER_H,12)}${gfoot}${gest('#fff')}`,'game');
+const exitDlg = phone(`${sb()}${counter(12,54)}${pagerHTML(PW,PAGER_H,12)}${gfoot}${gest('#fff')}
+  <div class="scrim" style="background:rgba(0,0,0,.6)"></div><div class="dialog night"><h5>¿Salir del juego?</h5><p>Volverás a tu baraja. Esta partida no se guardará.</p><div class="acts"><a>Cancelar</a><a>Salir</a></div></div>`,'game');
+const endDlg = phone(`${sb()}${counter(54,54)}${pagerHTML(PW,PAGER_H,54)}${gfoot}${gest('#fff')}
+  <div class="scrim" style="background:rgba(0,0,0,.6)"></div><div class="dialog night fiesta">${papel(PW-24,{h:74,sag:6})}<h5>Se acabaron las cartas</h5><p>Ya salieron las 54. ¿Barajamos otra vez?</p><div class="acts"><a>Salir</a><a style="color:#fff;background:var(--rosa);border-radius:999px;border:none;margin-left:8px">Reiniciar</a></div></div>`,'game');
+document.getElementById('row-game').innerHTML =
+  fig(game,'Juego vertical','Contador "12 / 54" con barra de avance. Las vecinas asoman para indicar el deslizamiento. Pantalla siempre encendida.')+
+  fig(exitDlg,'Confirmar salida','Diálogo oscuro al pie para no deslumbrar a los jugadores.')+
+  fig(endDlg,'Se acabaron las cartas','Al deslizar después de la última carta. El único momento con papel picado en el juego.');
+
+const LW=915, LH=412;
+const landGame = `<div class="device zoom-l"><div class="screen game" style="width:${LW}px;height:${LH}px;flex-direction:row">
+  <div style="width:220px;flex:none;display:flex;flex-direction:column;justify-content:space-between;padding:18px 0 18px 30px">
+    <div style="font-size:14px;font-weight:500">16:20</div>
+    <div class="counter" style="align-items:flex-start;height:auto"><div class="n" style="font-size:40px">12 <em style="font-size:24px">/ 54</em></div><div class="track"><i style="width:22%"></i></div></div>
+    <div></div></div>
+  ${pagerHTML(LW-440,LH,12,{peek:20,gap:12,flex:true})}
+  <div style="width:220px;flex:none;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:0 30px 28px 0">
+    <a class="pill dark" style="flex:none">${ic('refresh')}Reiniciar</a><a class="pill dark" style="flex:none">${ic('exit')}Salir</a></div>
+</div></div>`;
+
+const TW=1384, TH=865, PANE=Math.round(TW*.375);
+const tabGallery = `<div class="device tab zoom-t"><div class="screen" style="width:${TW}px;height:${TH}px;flex-direction:row">
+  <div class="wall" style="width:${PANE}px;height:100%">
+    <div class="sun"></div>${sb()}${papel(PANE,{h:80,sag:8})}
+    <div class="title" style="align-items:flex-start;text-align:left;padding:0 40px"><h3 style="font-size:52px">Lotería</h3><small>54 cartas</small></div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:0 40px 40px;position:relative;z-index:2">
+      <a class="pill" style="flex:none;background:#fff;color:var(--rosa-ink);height:60px;font-size:18px;box-shadow:0 10px 24px -10px rgba(80,0,40,.6)">${ic('play')}Jugar</a>
+      <a class="pill" style="flex:none;background:rgba(255,255,255,.18);color:#fff;height:60px;font-size:17px">${ic('add')}Añadir imágenes</a>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div class="appbar" style="height:72px;padding-top:16px;justify-content:flex-end"><a class="iconbtn" style="color:var(--ink)" aria-label="Más opciones">${ic('more')}</a></div>
+    <div class="grid" style="padding:0 32px;gap:14px">${tiles(12)}</div>
+  </div></div></div>`;
+
+const tabGame = (()=>{
+  const ph=TH-36-100-90-14;
+  return `<div class="device tab zoom-t"><div class="screen game" style="width:${TW}px;height:${TH}px">${sb()}
+  <div class="counter" style="height:100px"><div class="n" style="font-size:42px">12 <em style="font-size:26px">/ 54</em></div><div class="track" style="width:180px"><i style="width:22%"></i></div></div>
+  ${pagerHTML(TW,ph,12,{peek:300,gap:28})}
+  <div class="gfoot" style="justify-content:center;padding:14px 0 24px"><a class="pill dark" style="flex:none;width:220px">${ic('refresh')}Reiniciar</a><a class="pill dark" style="flex:none;width:220px">${ic('exit')}Salir</a></div>
+  </div></div>`;})();
+
+const tabGamePortrait = (()=>{
+  const W=TH, H=TW, ph=H-36-112-104-14;
+  return `<div class="device tab zoom-t"><div class="screen game" style="width:${W}px;height:${H}px">${sb()}
+  <div class="counter" style="height:112px"><div class="n" style="font-size:46px">12 <em style="font-size:28px">/ 54</em></div><div class="track" style="width:200px"><i style="width:22%"></i></div></div>
+  ${pagerHTML(W,ph,12,{peek:24,gap:20})}
+  <div class="gfoot" style="justify-content:center;gap:16px;padding:20px 0 30px"><a class="pill dark" style="flex:none;width:260px;height:60px;font-size:17px">${ic('refresh')}Reiniciar</a><a class="pill dark" style="flex:none;width:260px;height:60px;font-size:17px">${ic('exit')}Salir</a></div>
+  </div></div>`;})();
+
+document.getElementById('row-wide').innerHTML =
+  fig(landGame,'Juego · teléfono horizontal','Sin barra expandida; contador a la izquierda, botones a la derecha al alcance del pulgar.')+
+  fig(tabGallery,'Galería · tablet horizontal','Muro rosa como panel lateral (37.5%) con Jugar y Añadir; cuadrícula de 4 columnas a la derecha.')+
+  fig(tabGame,'Juego · tablet horizontal','La carta ocupa la altura; las vecinas se ven más para dar contexto del mazo.')+
+  fig(tabGamePortrait,'Juego · tablet vertical (recomendado para jugar)','Carta a casi todo el ancho de la Tab S11 Ultra: la más legible a distancia. Contador y botones crecen con la pantalla.');
+</script>
+</body>
+</html>

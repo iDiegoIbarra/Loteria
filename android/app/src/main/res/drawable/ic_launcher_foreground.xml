@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dos cartas: una cempasúchil inclinada detrás y una al frente con estrella. Zona segura 66dp. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-14">
+        <path
+            android:fillColor="#F5A800"
+            android:pathData="M38,29h28a3,3 0,0 1,3 3v40a3,3 0,0 1,-3 3h-28a3,3 0,0 1,-3 -3v-40a3,3 0,0 1,3 -3z" />
+    </group>
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="6">
+        <path
+            android:fillColor="#FBF6EC"
+            android:pathData="M42,31h28a3,3 0,0 1,3 3v40a3,3 0,0 1,-3 3h-28a3,3 0,0 1,-3 -3v-40a3,3 0,0 1,3 -3z" />
+        <path
+            android:fillColor="#2F5DD8"
+            android:pathData="M44.5,34h23a1.5,1.5 0,0 1,1.5 1.5v29a1.5,1.5 0,0 1,-1.5 1.5h-23a1.5,1.5 0,0 1,-1.5 -1.5v-29a1.5,1.5 0,0 1,1.5 -1.5z" />
+        <path
+            android:fillColor="#F5A800"
+            android:pathData="M56,39.5l2.6,5.6 6.1,0.7 -4.5,4.2 1.2,6 -5.4,-3 -5.4,3 1.2,-6 -4.5,-4.2 6.1,-0.7z" />
+        <path
+            android:fillColor="#1A1A1A"
+            android:pathData="M47,69h18v2h-18z" />
+    </group>
+</vector>
