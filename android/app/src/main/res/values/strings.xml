@@ -2,24 +2,109 @@
 <resources>
     <string name="app_name">Lotería</string>
 
-    <!-- Galería -->
-    <string name="gallery_empty_subtitle">Sin cartas todavía</string>
-    <string name="empty_title">Arma tu baraja</string>
-    <string name="empty_body">Añade fotos o dibujos desde tu galería. Se guardan en la app aunque borres la foto original.</string>
-    <string name="add_images">Añadir imágenes</string>
-    <string name="adding_images">Añadiendo…</string>
-    <string name="play">Jugar</string>
+    <!-- Generales -->
+    <string name="back">Atrás</string>
+    <string name="close">Cerrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="create">Crear</string>
+    <string name="delete">Eliminar</string>
+    <string name="done">Listo</string>
+    <string name="save">Guardar</string>
+    <string name="next">Siguiente</string>
+    <string name="previous">Anterior</string>
     <string name="more_options">Más opciones</string>
     <string name="select">Seleccionar</string>
-    <string name="delete_all">Eliminar todas</string>
-    <string name="select_cards">Selecciona cartas</string>
     <string name="all">Todas</string>
-    <string name="delete">Eliminar</string>
-    <string name="cancel">Cancelar</string>
+    <string name="saved_message">Cambios guardados</string>
+
+    <!-- Inicio -->
+    <string name="no_games">Sin juegos todavía</string>
+    <string name="new_game">Nuevo juego</string>
+    <string name="home_empty_title">Crea tu primer juego</string>
+    <string name="home_empty_body">Cada juego tiene sus propias cartas y tableros. Toca "Nuevo juego" para empezar.</string>
+    <string name="game_name">Nombre</string>
+    <string name="game_name_hint">Por ejemplo, Navidad familiar</string>
+    <string name="boards_label">Tableros</string>
+    <string name="size_label">Tamaño</string>
+    <string name="size_4">4×4 · 16 cartas</string>
+    <string name="size_3">3×3 · 9 cartas</string>
+
+    <!-- Detalle del juego -->
+    <string name="tab_cards">Cartas</string>
+    <string name="tab_boards">Tableros</string>
+    <string name="tab_settings">Ajustes</string>
+    <string name="boards_summary">%1$d tableros %2$d×%3$d</string>
+    <string name="boards_generated">%1$d tableros %2$d×%3$d · generados %4$s</string>
+    <string name="game_settings">Ajustes del juego</string>
+    <string name="play">Jugar</string>
+    <string name="create_cards">Crear cartas</string>
+    <string name="export_pdf">Exportar PDF</string>
+    <string name="select_cards">Selecciona cartas</string>
     <string name="close_selection">Salir de la selección</string>
-    <string name="delete_selected_message">Se quitarán de tu baraja. Las fotos originales de tu galería no se tocan.</string>
-    <string name="delete_all_title">¿Eliminar todas las cartas?</string>
     <string name="card_thumb_description">Carta %1$d</string>
+    <string name="empty_title">Arma tu baraja</string>
+    <string name="empty_body">Elige imágenes de tu galería: cada una se convierte en carta con el marco, el zigzag y los colores de su paleta.</string>
+    <string name="legacy_card_note">Esta carta se importó como imagen terminada; no se edita en el editor.</string>
+    <string name="board_n">Tabla %1$02d</string>
+    <string name="board_n_of">Tabla %1$02d de %2$d</string>
+    <string name="boards_pending">Los tableros se generarán al guardar cambios en las cartas.</string>
+    <string name="missing_banner_detail">Se necesitan para generar %1$d tableros %2$d×%3$d distintos. Mínimo: %4$d.</string>
+    <string name="missing_progress">%1$d de %2$d · o baja el número de tableros en Ajustes</string>
+    <string name="missing_explained">Para %1$d tableros %2$d×%3$d distintos, donde dos tableros compartan como máximo la mitad de sus cartas, necesitas al menos %4$d. Tienes %5$d.</string>
+    <string name="fewer_boards">Menos tableros</string>
+    <string name="computing_minimum">Calculando el mínimo de cartas…</string>
+    <string name="minimum_info">Con %1$d tableros %2$d×%3$d necesitas al menos %4$d cartas. Tienes %5$d.</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="save_changes_title">¿Guardar cambios?</string>
+    <string name="save_and_shuffle">Guardar y rebarajar</string>
+    <string name="settings_below_minimum">Necesitas al menos %1$d cartas para esos tableros y tienes %2$d. Los tableros quedarán pendientes hasta que agregues las que faltan.</string>
+    <string name="delete_game">Eliminar juego</string>
+    <string name="delete_game_title">¿Eliminar «%1$s»?</string>
+    <string name="delete_game_message">Se borrarán sus cartas y tableros. Las fotos originales de tu galería no se tocan.</string>
+
+    <!-- Exportar -->
+    <string name="export_content">Contenido</string>
+    <string name="both">Ambos</string>
+    <string name="export_where">Dónde lo imprimes</string>
+    <string name="target_home_letter">En casa · Carta</string>
+    <string name="target_home_letter_hint">Margen blanco de 6.35 mm</string>
+    <string name="target_home_a4">En casa · A4</string>
+    <string name="target_home_a4_hint">210 × 297 mm, margen de 6.35 mm</string>
+    <string name="target_print">Imprenta · Carta</string>
+    <string name="target_print_hint">3 mm de rebase para corte</string>
+    <string name="share_pdf">Compartir PDF</string>
+    <string name="exporting">Generando…</string>
+    <string name="exporting_detail">Generando el PDF, puede tardar unos segundos.</string>
+    <string name="export_failed">No se pudo generar el PDF</string>
+
+    <!-- Visor de tableros -->
+    <string name="viewer_hint">Pellizca para acercar · desliza para la siguiente tabla</string>
+
+    <!-- Editor -->
+    <string name="preparing_cards">Preparando las cartas…</string>
+    <string name="card_i_of_n">Carta %1$d de %2$d</string>
+    <string name="new_card">Nueva carta</string>
+    <string name="edit_card">Editar carta</string>
+    <string name="save_card">Guardar carta</string>
+    <string name="card_design">Diseño de la carta</string>
+    <string name="el_outer">Marco exterior</string>
+    <string name="el_inner">Marco interior</string>
+    <string name="el_zig">Zigzag</string>
+    <string name="el_outer_short">Marco</string>
+    <string name="el_inner_short">Interior</string>
+    <string name="from_image">De la imagen</string>
+    <string name="loteria_colors">Lotería</string>
+    <string name="custom_color">Elegir otro color</string>
+    <string name="brightness">Brillo</string>
+    <string name="legend">Leyenda</string>
+    <string name="legend_hint">Por ejemplo, EL GALLO</string>
+    <string name="legend_counter">%1$d/%2$d</string>
+    <string name="gesture_hint">Pellizca y arrastra la imagen · guía rosa al centrar</string>
+    <string name="preview_description">Vista previa de la carta %1$d: %2$s</string>
+    <string name="png_tip">Consejo: usa imágenes PNG con fondo transparente. La figura queda sobre el zigzag como en tus cartas; un fondo cuadrado tapa el patrón.</string>
+    <string name="discard">Descartar</string>
+    <string name="keep_editing">Seguir editando</string>
+    <string name="discard_message">Las imágenes elegidas no se añadirán al juego.</string>
 
     <!-- Juego -->
     <string name="restart">Reiniciar</string>
@@ -30,6 +115,11 @@
     <string name="card_position">Carta %1$d de %2$d</string>
     <string name="image_error">No se pudo mostrar esta imagen</string>
 
+    <plurals name="games_count">
+        <item quantity="one">%d juego</item>
+        <item quantity="many">%d juegos</item>
+        <item quantity="other">%d juegos</item>
+    </plurals>
     <plurals name="cards_count">
         <item quantity="one">%d carta</item>
         <item quantity="many">%d cartas</item>
@@ -45,15 +135,55 @@
         <item quantity="many">%d seleccionadas</item>
         <item quantity="other">%d seleccionadas</item>
     </plurals>
+    <plurals name="missing_cards">
+        <item quantity="one">Falta %d carta</item>
+        <item quantity="many">Faltan %d cartas</item>
+        <item quantity="other">Faltan %d cartas</item>
+    </plurals>
     <plurals name="delete_selected_title">
         <item quantity="one">¿Eliminar %d carta?</item>
         <item quantity="many">¿Eliminar %d cartas?</item>
         <item quantity="other">¿Eliminar %d cartas?</item>
     </plurals>
-    <plurals name="delete_all_message">
-        <item quantity="one">Se quitará la única carta para empezar de cero. No se puede deshacer.</item>
-        <item quantity="many">Se quitarán las %d cartas para empezar de cero. No se puede deshacer.</item>
-        <item quantity="other">Se quitarán las %d cartas para empezar de cero. No se puede deshacer.</item>
+    <plurals name="regenerate_after_delete">
+        <item quantity="one">Los %1$d tableros se generarán de nuevo al azar con la %2$d carta restante.</item>
+        <item quantity="many">Los %1$d tableros se generarán de nuevo al azar con las %2$d cartas restantes. Si ya los imprimiste, vuelve a exportarlos.</item>
+        <item quantity="other">Los %1$d tableros se generarán de nuevo al azar con las %2$d cartas restantes. Si ya los imprimiste, vuelve a exportarlos.</item>
+    </plurals>
+    <plurals name="delete_below_minimum">
+        <item quantity="one">Quedará %1$d carta y faltarán %2$d para generar los tableros.</item>
+        <item quantity="many">Quedarán %1$d cartas y faltarán %2$d para generar los tableros.</item>
+        <item quantity="other">Quedarán %1$d cartas y faltarán %2$d para generar los tableros.</item>
+    </plurals>
+    <plurals name="regenerate_after_add">
+        <item quantity="one">Añadiste %1$d carta. Los %2$d tableros se generarán de nuevo al azar con las %3$d cartas. Si ya los imprimiste, vuelve a exportarlos.</item>
+        <item quantity="many">Añadiste %1$d cartas. Los %2$d tableros se generarán de nuevo al azar con las %3$d cartas. Si ya los imprimiste, vuelve a exportarlos.</item>
+        <item quantity="other">Añadiste %1$d cartas. Los %2$d tableros se generarán de nuevo al azar con las %3$d cartas. Si ya los imprimiste, vuelve a exportarlos.</item>
+    </plurals>
+    <plurals name="save_below_minimum">
+        <item quantity="one">Se añadirá %1$d carta. Aún faltarán %2$d para generar los %3$d tableros.</item>
+        <item quantity="many">Se añadirán %1$d cartas. Aún faltarán %2$d para generar los %3$d tableros.</item>
+        <item quantity="other">Se añadirán %1$d cartas. Aún faltarán %2$d para generar los %3$d tableros.</item>
+    </plurals>
+    <plurals name="regenerate_settings">
+        <item quantity="one">Se generará %1$d tablero nuevo al azar con las %2$d cartas. Si ya lo imprimiste, vuelve a exportarlo.</item>
+        <item quantity="many">Se generarán %1$d tableros nuevos al azar con las %2$d cartas. Si ya los imprimiste, vuelve a exportarlos.</item>
+        <item quantity="other">Se generarán %1$d tableros nuevos al azar con las %2$d cartas. Si ya los imprimiste, vuelve a exportarlos.</item>
+    </plurals>
+    <plurals name="save_n_cards">
+        <item quantity="one">Guardar %d carta</item>
+        <item quantity="many">Guardar %d cartas</item>
+        <item quantity="other">Guardar %d cartas</item>
+    </plurals>
+    <plurals name="discard_title">
+        <item quantity="one">¿Descartar %d carta nueva?</item>
+        <item quantity="many">¿Descartar %d cartas nuevas?</item>
+        <item quantity="other">¿Descartar %d cartas nuevas?</item>
+    </plurals>
+    <plurals name="lines">
+        <item quantity="one">%d línea</item>
+        <item quantity="many">%d líneas</item>
+        <item quantity="other">%d líneas</item>
     </plurals>
     <plurals name="end_message">
         <item quantity="one">Ya salió la única carta. ¿Barajamos otra vez?</item>
@@ -64,11 +194,6 @@
         <item quantity="one">Se añadió %d carta</item>
         <item quantity="many">Se añadieron %d cartas</item>
         <item quantity="other">Se añadieron %d cartas</item>
-    </plurals>
-    <plurals name="failed_message">
-        <item quantity="one">No se pudo añadir %d imagen</item>
-        <item quantity="many">No se pudieron añadir %d imágenes</item>
-        <item quantity="other">No se pudieron añadir %d imágenes</item>
     </plurals>
     <plurals name="deleted_message">
         <item quantity="one">Se eliminó %d carta</item>

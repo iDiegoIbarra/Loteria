@@ -16,18 +16,29 @@ El cantor carga sus propias imágenes en la app, la app las baraja y las muestra
 | [`cards/normalized/`](cards/normalized) | Las 54 cartas del MVP, normalizadas a 1500 × 2125 px y sin bordes negros |
 | [`tools/cards_tool.py`](tools/cards_tool.py) | Script que detecta y recorta las cartas desde capturas de pantalla y las normaliza |
 | [`tools/tableros/`](tools/tableros) | Generador de los 24 tableros 4×4 en PDF tamaño Carta, más los PDF ya generados |
-| [`design/comps/`](design/comps) | Comps (mockups) en HTML de todas las pantallas: teléfono, horizontal y tablet |
+| [`design/comps/`](design/comps) | Comps en HTML: v1 (galería y juego) y v2 (juegos, editor de cartas, tableros) |
 | [`docs/`](docs) | Contexto del producto, sistema de diseño, guía de impresión e imágenes |
 
 ## La app
 
-### Galería
-- Cuadrícula de **4 columnas** con las cartas añadidas.
-- **"Añadir imágenes"** abre el Photo Picker nativo (`PickMultipleVisualMedia`), sin permisos de almacenamiento.
-- Cada imagen se **copia a `filesDir`**, así las cartas siguen ahí aunque borres la foto original.
-- **Pulsación larga** activa la selección múltiple: "Todas", "Eliminar" y cerrar. El menú ⋮ ofrece "Eliminar todas". Ambas acciones piden confirmación.
-- El botón **"Jugar"** con forma de píldora se deshabilita si no hay cartas.
+### Juegos (barajas)
+- La pantalla de inicio lista los **juegos**. Cada uno tiene sus propias cartas y tableros, número de tableros (24 por defecto) y tamaño (**4×4** o **3×3**).
+- Dentro de un juego, la barra inferior lleva a **Cartas**, **Tableros** y **Ajustes**. El muro rosa con papel picado muestra el nombre y los números del juego.
+- **Pulsación larga** en una carta activa la selección múltiple ("Todas", "Eliminar"). Tocar una carta la abre en el editor.
+- **Mínimo de cartas:** se calcula con el mismo generador de tableros (tableros distintos, reparto parejo y dos tableros comparten como máximo la mitad de sus casillas). Por ejemplo, 24 tableros 4×4 necesitan **36 cartas**. Si faltan, un aviso ámbar indica cuántas, y "Jugar" y "Exportar" lo recuerdan.
+- **Rebarajar:** al **añadir o eliminar** cartas, o al cambiar el número o tamaño de tableros, la app avisa que los tableros se generarán de nuevo al azar. Editar el diseño de una carta **no** rebaraja.
+- **Tableros:** cuadrícula de tablas. Al tocar una se abre el visor, donde se desliza entre tablas y se pellizca para acercar.
+- **Exportar PDF** (con Compartir): tableros, cartas (9 por hoja con línea de corte) o ambos; **casa Carta**, **casa A4** o **imprenta Carta** con 3 mm de rebase.
+- **Migración:** las cartas de la versión anterior pasan tal cual a "Mi primera lotería". Si son las 54 originales (se reconocen por su huella SHA-256), conserva los **24 tableros ya impresos**.
 
+### Editor de cartas
+- "Crear cartas" abre el Photo Picker (una o varias imágenes). Con varias trabaja en **cola** ("Carta 3 de 20", Anterior y Siguiente) y guarda todas juntas.
+- Cada imagen entra en el **molde de las cartas originales**: marco exterior, marco interior crema y zigzag ondulado. Los colores salen solos de la **paleta de la imagen**: exterior con el dominante, zigzag con un secundario suavizado, y número y leyenda en blanco o negro según el contraste.
+- **Pellizcar** cambia el tamaño y **arrastrar** mueve la imagen dentro del zigzag. Una **guía rosa** aparece y la imagen se ajusta cuando queda centrada en X o en Y.
+- Cada elemento se puede recolorear con la paleta de la imagen, los colores de Lotería o un **selector libre** (rueda, brillo y HEX). La leyenda y el número no cambian de tamaño ni de color.
+- **Leyenda:** mayúsculas automáticas, centrada, hasta **2 líneas**, con tamaño que se ajusta solo (tipografía Lexend).
+- Si la imagen no tiene transparencia, un aviso recomienda usar **PNG con fondo transparente**.
+- En **tablet u horizontal**, la carta va a la izquierda y las capas (Marco exterior, Marco interior, Zigzag) a la derecha.
 ### Juego
 - Baraja **Fisher–Yates** y `HorizontalPager` con **una carta por gesto**, para que un deslizamiento rápido nunca se salte una carta.
 - Muestra la imagen completa (`ContentScale.Fit`) sobre fondo oscuro, con la **pantalla siempre encendida**.
@@ -44,28 +55,42 @@ El cantor carga sus propias imágenes en la app, la app las baraja y las muestra
 
 ```
 android/app/src/main/java/com/diegoibarra/loteria/
-├── MainActivity.kt          # Una sola Activity; edge-to-edge; alterna Galería ↔ Juego
-├── LoteriaViewModel.kt      # Estado (SavedStateHandle), selección, Fisher–Yates, mazo
-├── data/CardRepository.kt   # Copia a filesDir + índice JSON (kotlinx.serialization), escritura atómica
+├── MainActivity.kt          # Una sola Activity; rutas Inicio · Juego · Editor · Visor · Jugar
+├── LoteriaViewModel.kt      # Navegación, selección, mínimo de cartas, mazo (SavedStateHandle), exportar
+├── EditorViewModel.kt       # Cola de cartas en edición, imagen actual, aviso de PNG
+├── data/
+│   ├── Models.kt            # Game, CardSpec, CardDesign (JSON con kotlinx.serialization)
+│   ├── GameRepository.kt    # games.json + games/<juego>/{src,render}; migración desde la v1
+│   └── Boards.kt            # Reparto balanceado de tableros y cálculo del mínimo de cartas
+├── render/
+│   ├── CardTemplate.kt      # Molde de la carta, leyenda, número, colores con Palette
+│   └── PdfExporter.kt       # PDF de tableros y cartas (casa Carta/A4, imprenta con rebase)
 └── ui/
-    ├── GalleryScreen.kt     # Galería: muro expandible, cuadrícula, selección, panel lateral en horizontal
-    ├── GameScreen.kt        # Juego: contador, pager, diálogos de salir y de fin
-    ├── Components.kt        # Papel picado, botones píldora, diálogo One UI al pie, clases de pantalla
+    ├── HomeScreen.kt        # Lista de juegos y "Nuevo juego"
+    ├── GameDetailScreen.kt  # Cartas · Tableros · Ajustes, selección, avisos, exportar
+    ├── EditorScreen.kt      # Editor (teléfono: vista previa y panel; tablet: dos paneles)
+    ├── ColorPicker.kt       # Rueda, brillo y HEX
+    ├── BoardViewerScreen.kt # Visor de tableros con zoom
+    ├── GameScreen.kt        # Jugar: contador, pager, diálogos de salir y de fin
+    ├── Common.kt            # Muro con scroll, barra inferior, aviso ámbar, tablero, carta con número
+    ├── Components.kt        # Papel picado, botones píldora, diálogo One UI al pie
     └── theme/Theme.kt       # Colores y tema Material 3
 ```
 
+Las pruebas unitarias de `Boards` (`./gradlew testDebugUnitTest`) verifican tableros distintos, el máximo de coincidencias, el reparto parejo y el mínimo calculado.
 ### Versiones
 
 Son las versiones estables más recientes compatibles con **Android Studio Rabbit 2 (2026.2.2)** a la fecha del proyecto:
 
 | Componente | Versión |
 |---|---|
-| Android Gradle Plugin | 9.5.0 |
+| Android Gradle Plugin | 9.5.2 |
 | Gradle | 9.8.2 |
 | Kotlin | 2.4.21 |
 | Compose BOM | 2026.09.00 |
 | Coil | 3.6.3 |
-| kotlinx.serialization | 1.12.0 |
+| kotlinx.serialization | 1.13.0 |
+| Palette | 1.1.0 |
 | compileSdk / targetSdk / minSdk | 37 / 37 / 26 |
 | JDK | 17+ (se usa el JBR de Android Studio) |
 
@@ -113,7 +138,7 @@ pip install pillow numpy
 python tools/cards_tool.py build
 ```
 
-La app **no exige** un tamaño de imagen: cualquier foto de la galería se muestra completa.
+En la app no hace falta normalizar nada: el editor ajusta cualquier imagen al molde de la carta.
 
 ## Los tableros imprimibles
 

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lotería · Comps v2 · Selección final</title>
+<!--
+THESIS: Cada juego es una baraja propia y cada carta nace en el mismo molde que las de Diego (marco, crema, zigzag). El editor no es Photoshop: es el molde con la imagen dentro.
+OWN-WORLD: Mundo v1 sin cambios: muro rosa mexicano #E4007C con sombra diagonal, papel picado, suelo One UI #F2F2F2, píldoras con 20dp de margen, diálogos al pie, juego en noche. Cartas: exterior de color dominante, interior crema #F7EFE2, zigzag ondulado en tono suave, leyenda Lexend en mayúsculas.
+STORY: Diego crea un juego, añade imágenes, cada una sale ya vestida con colores de su propia paleta; ajusta encuadre y leyenda; la app valida el mínimo y rebaraja los tableros al guardar.
+FIRST VIEWPORT: Inicio con la lista de juegos bajo el muro; acción principal "Nuevo juego" en el footer.
+FORM: Extensión de superficie existente; tres variantes por pantalla a petición del usuario.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Lexend:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rosa:#E4007C;--rosa-tint:#FCDDEC;--rosa-ink:#8A004B;--ground:#F2F2F2;--ink:#141414;--ink-2:#5C5C5C;--danger:#D7261E;--amber:#B26A00;--amber-tint:#FFF1D6;
+  --night:#080808;--night-2:#1A1A1A;--night-3:#262626;--night-ink:#F5F5F5;--night-ink-2:#A8A8A8;--crema:#F7EFE2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Roboto,system-ui,sans-serif;background:#26232A;color:#EEE;padding:48px 56px 120px;-webkit-font-smoothing:antialiased}
+header.board{max-width:1600px;margin:0 auto 36px}
+header.board h1{font-weight:300;font-size:44px;color:#fff}
+header.board p{color:#BDB6C4;font-size:16px;margin-top:10px;max-width:80ch;line-height:1.5}
+section.screen{max-width:1600px;margin:0 auto 72px}
+section.screen>h2{font-weight:500;font-size:24px;color:#fff}
+section.screen>p{color:#A9A1B1;font-size:14px;margin:6px 0 24px;max-width:90ch;line-height:1.5}
+.options{display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start}
+.opt{display:flex;flex-direction:column;gap:14px}
+.opt>h3{font-size:18px;font-weight:500;color:#fff;display:flex;align-items:center;gap:10px}
+.opt>h3 b{width:30px;height:30px;border-radius:50%;background:var(--rosa);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.opt>p{font-size:13px;color:#9A92A3;max-width:62ch;line-height:1.45}
+.frames{display:flex;gap:20px;align-items:flex-start}
+.device{width:fit-content;background:#0E0E10;padding:9px;border-radius:52px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6),0 0 0 1px #3A3640 inset;zoom:.6}
+.device.tab{border-radius:34px;padding:14px;zoom:.5}
+.screen-in{position:relative;overflow:hidden;border-radius:44px;display:flex;flex-direction:column;background:var(--ground);color:var(--ink);width:412px;height:915px}
+.tab .screen-in{border-radius:22px;width:1384px;height:865px}
+.sb{height:36px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:14px;font-weight:500;position:relative;z-index:3}
+.gest{height:22px;flex:none;display:flex;align-items:center;justify-content:center}
+.gest::after{content:"";width:120px;height:4px;border-radius:4px;background:currentColor;opacity:.5}
+.wall{position:relative;flex:none;background:var(--rosa);color:#fff;display:flex;flex-direction:column;overflow:hidden}
+.wall::before{content:"";position:absolute;inset:0;background:linear-gradient(118deg,rgba(0,0,0,0) 52%,rgba(0,0,0,.10) 52.2%);pointer-events:none}
+.wall .papel{position:absolute;left:0;right:0;top:30px;z-index:1}
+.wall .t{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:56px 24px 0;position:relative;z-index:2}
+.wall .t h4{font-weight:300;font-size:40px;line-height:1.1}
+.wall .t small{font-size:16px;opacity:.92;margin-top:8px}
+.bar{height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 8px 0 12px;position:relative;z-index:2}
+.bar .ttl{flex:1;font-size:20px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:48px;height:48px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:inherit;flex:none}
+.ib svg{width:24px;height:24px;fill:currentColor}
+.pill{height:54px;padding:0 20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:500;white-space:nowrap;flex:1;min-width:0}
+.pill svg{width:20px;height:20px;fill:currentColor;flex:none}
+.pill.tonal{background:var(--rosa-tint);color:var(--rosa-ink);flex:0 0 auto}
+.pill.play{background:var(--rosa);color:#fff;box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+.pill.dark{background:var(--night-3);color:var(--night-ink)}
+.pill.ghost{background:#fff;color:var(--ink);box-shadow:0 0 0 1px #E0E0E0 inset}
+.pill.sm{height:44px;font-size:14px;padding:0 16px}
+.footer{flex:none;display:flex;gap:10px;padding:14px 24px 10px;background:linear-gradient(to bottom,rgba(242,242,242,0),var(--ground) 30%);margin-top:-30px;position:relative;z-index:2}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 24px 0;align-content:start}
+.tile{aspect-ratio:1500/2125;border-radius:12px;overflow:hidden;background:#ddd;position:relative}
+.tile img,.tile svg{width:100%;height:100%;object-fit:cover;display:block}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:5}
+.dialog{position:absolute;left:12px;right:12px;bottom:30px;background:#fff;border-radius:26px;z-index:6;padding:24px 24px 10px;color:var(--ink)}
+.dialog h5{font-size:20px;font-weight:500}
+.dialog p{font-size:16px;color:var(--ink-2);margin-top:10px;line-height:1.45}
+.acts{display:flex;margin-top:14px}
+.acts a{flex:1;text-align:center;font-size:17px;font-weight:500;height:52px;display:flex;align-items:center;justify-content:center;color:var(--rosa-ink)}
+.acts a+a{border-left:1px solid #E3E3E3}
+.acts a.fill{background:var(--rosa);color:#fff;border-radius:999px;border:none;margin-left:8px}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;z-index:6;padding:10px 24px 24px;color:var(--ink)}
+.sheet .grab{width:36px;height:4px;border-radius:4px;background:#CFCFCF;margin:0 auto 14px}
+.chip{height:36px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;background:#fff;color:var(--ink);box-shadow:0 0 0 1px #DADADA inset;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;box-shadow:none}
+.chip i{width:16px;height:16px;border-radius:50%;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.15) inset}
+.sw{width:40px;height:40px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.12) inset;position:relative}
+.sw.on::after{content:"";position:absolute;inset:-5px;border-radius:50%;box-shadow:0 0 0 2.5px var(--ink)}
+.swrow{display:flex;gap:12px;align-items:center;flex-wrap:nowrap;overflow:hidden}
+.lbl{font-size:13px;font-weight:500;color:var(--ink-2);margin:14px 0 8px}
+.field{height:56px;border-radius:16px;background:#fff;box-shadow:0 0 0 1px #DADADA inset;display:flex;align-items:center;padding:0 16px;font-size:17px;gap:10px}
+.field .ct{margin-left:auto;font-size:13px;color:var(--ink-2)}
+.banner{margin:12px 24px 0;border-radius:18px;padding:14px 16px;background:var(--amber-tint);color:#5A3A00;font-size:15px;line-height:1.4;display:flex;gap:12px;align-items:flex-start}
+.banner svg{width:22px;height:22px;fill:var(--amber);flex:none;margin-top:1px}
+.banner b{font-weight:500}
+.prog{height:6px;border-radius:6px;background:rgba(178,106,0,.2);margin-top:8px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--amber);border-radius:6px}
+.seg{display:flex;background:#E6E6E6;border-radius:999px;padding:4px;margin:12px 24px 0}
+.seg a{flex:1;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--ink-2);gap:6px}
+.seg a.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg a em{font-style:normal;font-weight:400;color:var(--ink-2)}
+.toast{position:absolute;left:24px;right:24px;z-index:7;background:#2B2B2B;color:#fff;border-radius:16px;padding:14px 16px;font-size:14px;line-height:1.4;display:flex;gap:10px;align-items:flex-start}
+.toast svg{width:20px;height:20px;fill:#FFC266;flex:none}
+.bnav{flex:none;display:flex;background:#fff;border-top:1px solid #E6E6E6;padding:6px 8px 0}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--ink-2);padding:6px 0 4px}
+.bnav a svg{width:24px;height:24px;fill:currentColor}
+.bnav a.on{color:var(--rosa-ink)}
+.bnav a.on span.ic{background:var(--rosa-tint);border-radius:999px;padding:2px 18px}
+figcaption{font-size:13px;color:#D9D2E0;margin-top:8px;max-width:30ch;line-height:1.35}
+figure{display:flex;flex-direction:column}
+.note{font-size:12px;color:#8E8697}
+</style>
+</head>
+<body>
+<header class="board">
+  <h1>Lotería · Comps v2</h1>
+  <p>Juegos (barajas) con cartas y tableros propios, y el editor que viste cada imagen en el molde de tus cartas. Tres opciones por pantalla: elige una letra por pantalla (por ejemplo, "Inicio B, Detalle A, Editor A") y dime qué cambiar. Todo respeta el mundo de la v1: One UI, muro rosa, papel picado, diálogos al pie.</p>
+</header>
+
+<section class="screen" id="s0">
+  <h2>★ Selección final · Inicio B · Detalle B + barra y ajustes de C · Editor A (+ C en tablet)</h2>
+  <p>Esto es lo que se construirá. Debajo quedan las opciones originales como referencia.</p>
+  <div class="options" id="o0"></div>
+</section>
+
+<section class="screen" id="s1">
+  <h2>1 · Inicio: mis juegos</h2>
+  <p>Primera pantalla de la app. Cada juego muestra sus cartas, sus tableros y si le faltan cartas para generar tableros. "Nuevo juego" abre un diálogo con nombre, número de tableros y tamaño (4×4 o 3×3).</p>
+  <div class="options" id="o1"></div>
+</section>
+
+<section class="screen" id="s2">
+  <h2>2 · Detalle de un juego</h2>
+  <p>Ver cartas, ver tableros, seleccionar y eliminar, crear cartas y jugar. La validación de mínimo bloquea generar tableros y dice cuántas cartas faltan. Al guardar cambios en el conjunto de cartas aparece el aviso de rebarajar tableros.</p>
+  <div class="options" id="o2"></div>
+</section>
+
+<section class="screen" id="s3">
+  <h2>3 · Editor de carta</h2>
+  <p>La imagen entra ya vestida: exterior con el color dominante, zigzag con el secundario en tono suave, interior crema. Pellizcar y arrastrar ajustan la imagen dentro del zigzag; aparecen guías rosas al quedar centrada en X o Y. Leyenda en mayúsculas, centrada, hasta 2 líneas, con tamaño automático. Con varias imágenes: cola "3 de 20" y "Siguiente".</p>
+  <div class="options" id="o3"></div>
+</section>
+
+<section class="screen" id="s4">
+  <h2>4 · Comunes (igual en cualquier opción)</h2>
+  <p>Visor de tablero con zoom, exportar PDF, aviso de rebarajar al guardar y validación al intentar jugar o generar tableros.</p>
+  <div class="options" id="o4"></div>
+</section>
+
+<script>
+/* ---------- iconos (Material Icons, Apache 2.0) ---------- */
+const P={
+ add:'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',play:'M8 5v14l11-7z',
+ more:'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
+ back:'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',
+ chev:'M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z',
+ warn:'M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z',
+ cards:'M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z',
+ grid:'M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z',
+ tune:'M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z',
+ share:'M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z',
+ check:'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z',
+ close:'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+ image:'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z',
+ palette:'M12 3a9 9 0 000 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
+ text:'M5 4v3h5.5v12h3V7H19V4z',
+ pdf:'M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z',
+ del:'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z',
+ settings:'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z'
+};
+const ic=n=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${P[n]}"/></svg>`;
+
+/* ---------- papel picado ---------- */
+const PP=['#F5A800','#00A35C','#2F5DD8','#FF6A13','#6B3FA0','#00A9B5'];
+const FP=(()=>{let d='M0 0 L50 0 L50 46';for(let x=50;x>0;x-=10)d+=` L${x-5} 54 L${x-10} 46`;d+=' Z';
+ const c=(x,y,r)=>` M${x-r} ${y} a${r} ${r} 0 1 0 ${2*r} 0 a${r} ${r} 0 1 0 ${-2*r} 0 Z`,m=(x,y,s)=>` M${x} ${y-s} L${x+s} ${y} L${x} ${y+s} L${x-s} ${y} Z`;
+ d+=c(25,20,6)+m(25,9,3)+m(25,31,3)+m(14,20,3)+m(36,20,3)+m(10,8,3.5)+m(40,8,3.5)+m(10,32,3.5)+m(40,32,3.5);[10,20,30,40].forEach(x=>d+=c(x,41,1.6));return d})();
+function papel(w,h=64){const n=Math.ceil(w/58)+1;let s=`<svg class="papel" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="M-4 4 Q ${w/2} 24 ${w+4} 4" stroke="rgba(255,255,255,.75)" stroke-width="1.5" fill="none"/>`;
+ for(let i=0;i<n;i++){const x=i*58+4,t=Math.min(1,Math.max(0,(x+25)/w)),y=4+40*t*(1-t);s+=`<g transform="translate(${x} ${y}) rotate(${i%2?2.5:-2.5} 25 0)"><path d="${FP}" fill="${PP[i%6]}" fill-rule="evenodd"/></g>`}return s+'</svg>'}
+
+/* ---------- cartas reales ---------- */
+const real=n=>`<img src="../../cards/normalized/Loteria_${String(((n-1)%54+54)%54+1).padStart(2,'0')}.jpg" alt="">`;
+
+/* ---------- molde de carta (editor) ---------- */
+// Medido de las cartas reales: exterior 6.7% del ancho, crema hasta 13%, zigzag ondulado.
+function wavy(x,y,w,h,a,len){let d='',n=Math.round(w/len),m=Math.round(h/len),lx=w/n,ly=h/m;
+ d+=`M${x} ${y}`;for(let i=0;i<n;i++)d+=` q${lx/4} ${-a} ${lx/2} 0 t${lx/2} 0`;
+ for(let i=0;i<m;i++)d+=` q${a} ${ly/4} 0 ${ly/2} t0 ${ly/2}`;
+ for(let i=0;i<n;i++)d+=` q${-lx/4} ${a} ${-lx/2} 0 t${-lx/2} 0`;
+ for(let i=0;i<m;i++)d+=` q${-a} ${-ly/4} 0 ${-ly/2} t0 ${-ly/2}`;return d+'Z'}
+const ART={
+ gallo:`<g transform="translate(150 175) scale(1.25)"><path d="M-10 40 C-60 30 -70 -20 -40 -40 C-55 -10 -30 10 -5 5 C-10 -20 0 -45 20 -50 L28 -62 L32 -50 L42 -58 L40 -46 C55 -40 50 -20 40 -15 L52 -8 L38 -6 C40 15 30 35 10 42 Z" fill="#B23A1E"/><path d="M-40 -40 C-75 -30 -80 20 -45 35 C-70 10 -60 -20 -40 -40Z" fill="#1F5A3A"/><path d="M-48 -30 C-90 -10 -70 45 -30 40 C-60 25 -62 -5 -48 -30Z" fill="#0E3B5C"/><circle cx="30" cy="-35" r="3" fill="#111"/><path d="M0 42 L-4 70 L-14 74 M0 42 L4 70 L14 74" stroke="#D9A53B" stroke-width="4" fill="none" stroke-linecap="round"/></g>`,
+ sol:`<g transform="translate(150 170)"><g stroke="#FF6A13" stroke-width="8" stroke-linecap="round">${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return `<line x1="${70*Math.cos(a)}" y1="${70*Math.sin(a)}" x2="${92*Math.cos(a)}" y2="${92*Math.sin(a)}"/>`}).join('')}</g><circle r="56" fill="#F5A800"/></g>`,
+ guitarra:`<g transform="translate(150 180)"><rect x="-8" y="-120" width="16" height="110" rx="4" fill="#3A2215"/><circle cy="40" r="56" fill="#C46A2B"/><circle cy="-15" r="42" fill="#C46A2B"/><circle cy="25" r="15" fill="#3A2215"/><rect x="-22" y="70" width="44" height="10" rx="4" fill="#3A2215"/></g>`
+};
+function card({outer='#2F5DD8',inner='#F7EFE2',zig='#F3B7C9',art='gallo',num=12,legend='EL GALLO',ink='#1A1A1A',tx=0,ty=0,s=1,guides='',sel=''}){
+ const zp=wavy(40,40,220,345,5,20); const lines=legend.length>14?splitLegend(legend):[legend];
+ const fs=lines.length>1?17:21; const ly=lines.length>1?[316,338]:[330];
+ return `<svg viewBox="0 0 300 425" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Carta ${num}: ${legend}">
+  <defs><clipPath id="z${num}${art}${tx}${ty}"><path d="${zp}"/></clipPath></defs>
+  <rect width="300" height="425" fill="${outer}" ${sel==='outer'?'stroke="#E4007C" stroke-width="6"':''}/>
+  <rect x="20" y="20" width="260" height="385" fill="${inner}" ${sel==='inner'?'stroke="#E4007C" stroke-width="5"':''}/>
+  <path d="${zp}" fill="${zig}" ${sel==='zig'?'stroke="#E4007C" stroke-width="4"':''}/>
+  <g clip-path="url(#z${num}${art}${tx}${ty})"><g transform="translate(${tx} ${ty}) translate(150 175) scale(${s}) translate(-150 -175)">${ART[art]}</g></g>
+  ${guides}
+  <text x="62" y="82" font-family="Lexend" font-size="17" fill="${ink}"># ${num}</text>
+  ${lines.map((l,i)=>`<text x="150" y="${ly[i]}" text-anchor="middle" font-family="Lexend" font-size="${fs}" fill="${ink}">${l}</text>`).join('')}
+ </svg>`}
+function splitLegend(t){const w=t.split(' ');let a='',b='';for(const x of w){(a.length+x.length<15&&!b)?a+=(a?' ':'')+x:b+=(b?' ':'')+x}return [a,b]}
+const GUIDES=`<line x1="150" y1="30" x2="150" y2="395" stroke="#E4007C" stroke-width="1.6" stroke-dasharray="6 5"/><line x1="30" y1="212" x2="270" y2="212" stroke="#E4007C" stroke-width="1.6" stroke-dasharray="6 5"/>`;
+
+/* ---------- marcos ---------- */
+const sb=(c='#141414')=>`<div class="sb" style="color:${c}"><span>16:20</span><span>▴ ◆ ▬</span></div>`;
+const phone=(inner,bg='')=>`<div class="device"><div class="screen-in" style="${bg}">${inner}</div></div>`;
+const tablet=inner=>`<div class="device tab"><div class="screen-in" style="flex-direction:row">${inner}</div></div>`;
+const fig=(d,c)=>`<figure>${d}<figcaption>${c}</figcaption></figure>`;
+const opt=(k,t,p,frames)=>`<div class="opt"><h3><b>${k}</b>${t}</h3><p>${p}</p><div class="frames">${frames}</div></div>`;
+const gest=(c='#000')=>`<div class="gest" style="color:${c}"></div>`;
+const wallH=363;
+const wall=(title,sub,bar,h=wallH)=>`<div class="wall" style="height:${h}px">${sb('#fff')}${papel(412)}<div class="t"><h4>${title}</h4><small>${sub}</small></div><div class="bar">${bar}</div></div>`;
+const compact=(title,left='',right='')=>`<div class="wall" style="height:100px">${sb('#fff')}<div class="bar" style="height:64px">${left}<span class="ttl">${title}</span>${right}</div></div>`;
+
+const GAMES=[
+ {n:'Mi primera lotería',c:54,b:24,size:'4×4',col:'#E4007C',cards:[1,17,43]},
+ {n:'Navidad familiar',c:24,b:24,size:'4×4',col:'#00A35C',cards:[44,34,52],miss:12},
+ {n:'Escuela de Lara',c:20,b:12,size:'3×3',col:'#2F5DD8',cards:[6,27,22]}
+];
+const fan=(cs,h=96)=>`<div style="position:relative;width:${h*1.15}px;height:${h}px;flex:none">${cs.map((n,i)=>`<div class="tile" style="position:absolute;height:${h*.88}px;left:${i*h*.2}px;top:${i===1?0:h*.06}px;transform:rotate(${(i-1)*8}deg);box-shadow:0 4px 10px rgba(0,0,0,.18);border-radius:8px">${real(n)}</div>`).join('')}</div>`;
+const status=g=>g.miss?`<span style="display:inline-flex;align-items:center;gap:6px;color:var(--amber);font-weight:500">${ic('warn').replace('<svg','<svg style="width:16px;height:16px;fill:currentColor"')}Faltan ${g.miss} cartas</span>`:`${g.b} tableros ${g.size}`;
+
+/* ===== 1 · INICIO ===== */
+const s1a=phone(wall('Lotería','3 juegos',`<span style="flex:1"></span><a class="ib">${ic('more')}</a>`)+
+ `<div style="flex:1;padding:14px 24px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start">${GAMES.map(g=>`
+  <div style="background:#fff;border-radius:22px;overflow:hidden">
+   <div style="height:128px;background:${g.col};display:flex;align-items:center;justify-content:center;position:relative">${fan(g.cards,96)}</div>
+   <div style="padding:12px 14px 14px"><div style="font-size:16px;font-weight:500">${g.n}</div><div style="font-size:13px;color:var(--ink-2);margin-top:4px">${g.c} cartas · ${status(g)}</div></div>
+  </div>`).join('')}</div>`+
+ `<div class="footer"><a class="pill play">${ic('add')}Nuevo juego</a></div>`+gest());
+const s1b=phone(wall('Lotería','3 juegos',`<span style="flex:1"></span><a class="ib">${ic('more')}</a>`)+
+ `<div style="flex:1;padding:14px 24px 0"><div style="background:#fff;border-radius:26px;overflow:hidden">${GAMES.map((g,i)=>`
+  <div style="display:flex;align-items:center;gap:16px;padding:14px 12px 14px 16px;${i?'border-top:1px solid #EEE':''}">
+   ${fan(g.cards,72)}
+   <div style="flex:1;min-width:0"><div style="font-size:18px">${g.n}</div><div style="font-size:14px;color:var(--ink-2);margin-top:4px">${g.c} cartas · ${status(g)}</div></div>
+   <a class="ib" style="color:var(--ink-2)">${ic('chev')}</a></div>`).join('')}</div></div>`+
+ `<div class="footer"><a class="pill play">${ic('add')}Nuevo juego</a></div>`+gest());
+const s1c=phone(compact('Lotería','',`<a class="ib">${ic('more')}</a>`)+
+ `<div style="flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+   <div style="display:flex;gap:16px;transform:translateX(-238px);padding:0 0">${[GAMES[2],GAMES[0],GAMES[1]].map((g,i)=>`
+    <div style="flex:none;width:300px;opacity:${i===1?1:.45};transform:scale(${i===1?1:.9})">
+     <div style="height:420px;border-radius:28px;background:${g.col};position:relative;display:flex;align-items:center;justify-content:center;box-shadow:0 20px 40px -16px rgba(0,0,0,.4)">
+       <div style="position:absolute;top:0;left:0;right:0;height:60px;overflow:hidden;border-radius:28px 28px 0 0">${papel(300,60)}</div>${fan(g.cards,220)}</div>
+     <div style="text-align:center;margin-top:18px"><div style="font-size:22px;font-weight:500">${g.n}</div><div style="font-size:15px;color:var(--ink-2);margin-top:6px">${g.c} cartas · ${status(g)}</div></div>
+    </div>`).join('')}</div>
+   <div style="display:flex;justify-content:center;gap:8px;margin-top:18px"><i style="width:8px;height:8px;border-radius:50%;background:#CCC"></i><i style="width:22px;height:8px;border-radius:8px;background:var(--rosa)"></i><i style="width:8px;height:8px;border-radius:50%;background:#CCC"></i></div>
+ </div>`+
+ `<div class="footer" style="margin-top:0"><a class="pill tonal">${ic('add')}Nuevo juego</a><a class="pill play">${ic('play')}Jugar</a></div>`+gest());
+document.getElementById('o1').innerHTML=
+ opt('A','Tarjetas de baraja','Cuadrícula de 2 columnas; cada juego es una tarjeta con su color y un abanico de 3 cartas. Visual y rápida de reconocer.',fig(s1a,'Inicio A'))+
+ opt('B','Lista One UI','Lista agrupada como Ajustes de Samsung: abanico pequeño, nombre, cartas y estado. La más nativa y la que mejor escala a muchos juegos.',fig(s1b,'Inicio B'))+
+ opt('C','Estante de barajas','Carrusel: una baraja grande al centro con papel picado y las vecinas asomando, como el juego. Jugar sale directo desde aquí.',fig(s1c,'Inicio C'));
+
+/* ===== 2 · DETALLE ===== */
+const g0=GAMES[0];
+const tableMini=(seed,cols=4)=>`<div style="background:#fff;border-radius:14px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)"><div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:3px">${Array.from({length:cols*cols},(_,i)=>`<div class="tile" style="border-radius:3px">${real((seed*7+i*11)%54+1)}</div>`).join('')}</div><div style="font-size:12px;color:var(--ink-2);text-align:center;margin-top:6px">Tabla ${String(seed).padStart(2,'0')}</div></div>`;
+const s2a1=phone(compact(g0.n,`<a class="ib">${ic('back')}</a>`,`<a class="ib">${ic('more')}</a>`)+
+ `<div class="seg"><a class="on">${ic('cards').replace('<svg','<svg style="width:18px;height:18px;fill:currentColor"')}Cartas <em>54</em></a><a>${ic('grid').replace('<svg','<svg style="width:18px;height:18px;fill:currentColor"')}Tableros <em>24</em></a></div>`+
+ `<div class="grid4" style="flex:1;overflow:hidden">${Array.from({length:20},(_,i)=>`<div class="tile">${real(i+1)}</div>`).join('')}</div>`+
+ `<div class="footer"><a class="pill tonal">${ic('add')}Crear cartas</a><a class="pill play">${ic('play')}Jugar</a></div>`+gest());
+const s2a2=phone(compact(g0.n,`<a class="ib">${ic('back')}</a>`,`<a class="ib">${ic('more')}</a>`)+
+ `<div class="seg"><a>Cartas <em>54</em></a><a class="on">Tableros <em>24</em></a></div>`+
+ `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 24px 0"><span style="font-size:14px;color:var(--ink-2)">24 tableros · 4×4 · generados hoy 16:10</span></div>`+
+ `<div style="flex:1;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 24px 0;align-content:start">${[1,2,3,4,5,6].map(n=>tableMini(n)).join('')}</div>`+
+ `<div class="footer"><a class="pill tonal">${ic('pdf')}Exportar PDF</a><a class="pill play">${ic('play')}Jugar</a></div>`+gest());
+const s2b1=phone(wall(g0.n,'54 cartas · 24 tableros 4×4',`<a class="ib">${ic('back')}</a><span style="flex:1"></span><a class="ib">${ic('tune')}</a><a class="ib">${ic('more')}</a>`,330)+
+ `<div style="flex:1;overflow:hidden;padding:0 0 0 24px">
+   <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px 10px 0"><span style="font-size:17px;font-weight:500">Cartas</span><a style="color:var(--rosa-ink);font-size:15px;font-weight:500">Ver las 54</a></div>
+   <div style="display:flex;gap:8px">${[1,2,3,4,5].map(n=>`<div class="tile" style="width:84px;flex:none">${real(n)}</div>`).join('')}</div>
+   <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 10px 0"><span style="font-size:17px;font-weight:500">Tableros</span><a style="color:var(--rosa-ink);font-size:15px;font-weight:500">Ver los 24</a></div>
+   <div style="display:flex;gap:10px">${[1,2,3].map(n=>`<div style="width:150px;flex:none">${tableMini(n)}</div>`).join('')}</div>
+ </div>`+
+ `<div class="footer"><a class="pill tonal">${ic('add')}Crear cartas</a><a class="pill play">${ic('play')}Jugar</a></div>`+gest());
+const g1=GAMES[1];
+const s2b2=phone(wall(g1.n,'24 cartas · 24 tableros 4×4',`<a class="ib">${ic('back')}</a><span style="flex:1"></span><a class="ib">${ic('tune')}</a><a class="ib">${ic('more')}</a>`,330).replace(/background:var\(--rosa\)/,'')+
+ `<div class="banner">${ic('warn')}<div style="flex:1"><b>Faltan 12 cartas</b> para generar 24 tableros 4×4 distintos. Mínimo: 36.<div class="prog"><i style="width:67%"></i></div><div style="font-size:13px;margin-top:6px">24 de 36 · o baja a 12 tableros desde ${ic('tune').replace('<svg','<svg style="width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin:0"')} Ajustes del juego</div></div></div>`+
+ `<div class="grid4" style="flex:1;overflow:hidden">${[44,34,52,50,51,53,22,24,26,36,35,39].map(n=>`<div class="tile">${real(n)}</div>`).join('')}</div>`+
+ `<div class="footer"><a class="pill play" style="flex:1">${ic('add')}Crear cartas</a></div>`+gest());
+const s2c1=phone(compact(g0.n,`<a class="ib">${ic('back')}</a>`,`<a class="pill play sm" style="flex:none;margin-right:4px">${ic('play')}Jugar</a>`)+
+ `<div style="padding:14px 24px 0;font-size:14px;color:var(--ink-2)">54 cartas · mantén presionada para seleccionar</div>`+
+ `<div class="grid4" style="flex:1;overflow:hidden">${Array.from({length:20},(_,i)=>`<div class="tile">${real(i+21)}</div>`).join('')}</div>`+
+ `<div style="position:absolute;right:24px;bottom:110px;z-index:3"><a class="pill play" style="height:60px;padding:0 22px;box-shadow:0 10px 24px -8px rgba(0,0,0,.4)">${ic('add')}Crear cartas</a></div>`+
+ `<div class="bnav"><a class="on"><span class="ic">${ic('cards')}</span>Cartas</a><a>${ic('grid')}Tableros</a><a>${ic('settings')}Ajustes</a></div>`+gest());
+const s2c2=phone(compact(g0.n,`<a class="ib">${ic('back')}</a>`,`<a class="pill play sm" style="flex:none;margin-right:4px">${ic('play')}Jugar</a>`)+
+ `<div style="padding:16px 24px 0"><div class="lbl" style="margin-top:0">Nombre</div><div class="field">${g0.n}</div>
+  <div class="lbl">Tableros</div><div class="field">24<span class="ct">mín. 1 · máx. 60</span></div>
+  <div class="lbl">Tamaño</div><div class="seg" style="margin:0"><a class="on">4×4 · 16 cartas</a><a>3×3 · 9 cartas</a></div>
+  <div style="margin-top:18px;background:#fff;border-radius:18px;padding:14px 16px;font-size:15px;line-height:1.45;color:var(--ink-2)">Con 24 tableros 4×4 necesitas al menos <b style="color:var(--ink)">36 cartas</b>. Tienes 54. ${ic('check').replace('<svg','<svg style="width:18px;height:18px;fill:#00A35C;vertical-align:-4px"')}</div>
+  <div style="margin-top:14px"><a class="pill ghost" style="width:100%;color:var(--danger)">${ic('del')}Eliminar juego</a></div></div>
+  <div style="flex:1"></div>`+
+ `<div class="bnav"><a>${ic('cards')}Cartas</a><a>${ic('grid')}Tableros</a><a class="on"><span class="ic">${ic('settings')}</span>Ajustes</a></div>`+gest());
+document.getElementById('o2').innerHTML=
+ opt('A','Pestañas Cartas | Tableros','Barra compacta con el nombre, selector segmentado y footer con la acción de cada pestaña. Directa y familiar.',fig(s2a1,'Pestaña Cartas')+fig(s2a2,'Pestaña Tableros'))+
+ opt('B','Resumen con muro','El muro rosa trae nombre y números; debajo, tiras de Cartas y Tableros con "Ver todas". La validación aparece como aviso ámbar con avance.',fig(s2b1,'Juego completo')+fig(s2b2,'Juego con faltantes'))+
+ opt('C','Barra inferior One UI','Tres destinos abajo: Cartas, Tableros y Ajustes del juego. "Jugar" vive arriba y "Crear cartas" flota. Ajustes reúne nombre, número de tableros, tamaño y la regla del mínimo.',fig(s2c1,'Cartas')+fig(s2c2,'Ajustes del juego'));
+
+/* ===== 3 · EDITOR ===== */
+const IMG_PAL=['#B23A1E','#1F5A3A','#0E3B5C','#D9A53B','#F3B7C9'];
+const APP_PAL=['#E4007C','#F5A800','#00A35C','#2F5DD8','#FF6A13','#6B3FA0','#00A9B5'];
+const sws=(arr,on)=>arr.map(c=>`<span class="sw ${c===on?'on':''}" style="background:${c}"></span>`).join('');
+const custom=`<span class="sw" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)"></span>`;
+const queueBar=(l,r)=>`<div class="bar" style="height:60px;padding:0 8px">${l}<span class="ttl" style="text-align:center;font-size:17px">Carta 3 de 20</span>${r}</div>`;
+const editorCard=(o={})=>card({outer:'#0E3B5C',zig:'#F3D9A8',art:'gallo',num:12,legend:'EL GALLO',...o});
+const s3a1=phone(`${sb()}${queueBar(`<a class="ib">${ic('close')}</a>`,`<a class="pill tonal sm" style="flex:none">Siguiente</a>`)}
+ <div style="display:flex;justify-content:center;padding:6px 0 0"><div style="width:258px;border-radius:12px;overflow:hidden;box-shadow:0 14px 30px -12px rgba(0,0,0,.35)">${editorCard({sel:'outer'})}</div></div>
+ <div style="flex:1;padding:16px 24px 0;overflow:hidden">
+  <div style="display:flex;gap:8px"><span class="chip on"><i style="background:#0E3B5C"></i>Marco</span><span class="chip"><i style="background:#F7EFE2"></i>Interior</span><span class="chip"><i style="background:#F3D9A8"></i>Zigzag</span></div>
+  <div class="lbl">De la imagen</div><div class="swrow">${sws(IMG_PAL,'#0E3B5C')}</div>
+  <div class="lbl">Lotería</div><div class="swrow">${sws(APP_PAL.slice(0,6),'')}${custom}</div>
+  <div class="lbl">Leyenda</div><div class="field">EL GALLO<span class="ct">8/30 · 1 línea</span></div>
+ </div>
+ <div class="footer" style="margin-top:0"><a class="pill tonal">Anterior</a><a class="pill play">${ic('check')}Guardar carta</a></div>${gest()}`);
+const s3a2=phone(`${sb()}${queueBar(`<a class="ib">${ic('close')}</a>`,`<a class="pill tonal sm" style="flex:none">Siguiente</a>`)}
+ <div style="display:flex;justify-content:center;padding:6px 0 0;position:relative"><div style="width:258px;border-radius:12px;overflow:hidden;box-shadow:0 14px 30px -12px rgba(0,0,0,.35)">${editorCard({tx:0,ty:-18,s:1.12,guides:GUIDES})}</div>
+  <div style="position:absolute;top:150px;left:50%;transform:translateX(-50%);background:rgba(20,20,20,.8);color:#fff;font-size:13px;padding:6px 12px;border-radius:999px">Centrada · 112%</div></div>
+ <div class="toast" style="bottom:120px">${ic('image')}<div><b>Tip:</b> usa PNG con fondo transparente. La figura queda sobre el zigzag como en tus cartas; un fondo cuadrado tapará el patrón.</div></div>
+ <div style="flex:1"></div>
+ <div class="footer" style="margin-top:0"><a class="pill tonal">Anterior</a><a class="pill play">${ic('check')}Guardar carta</a></div>${gest()}`);
+const s3b1=phone(`${sb('#fff')}${queueBar(`<a class="ib" style="color:#fff">${ic('close')}</a>`,`<a class="pill dark sm" style="flex:none">Siguiente</a>`).replace('ttl"','ttl" style="color:#fff;text-align:center;font-size:17px"')}
+ <div style="flex:1;display:flex;justify-content:center;align-items:flex-start;padding-top:8px"><div style="width:330px;border-radius:14px;overflow:hidden">${editorCard()}</div></div>
+ <div class="sheet" style="position:relative;border-radius:26px 26px 0 0">
+  <div class="grab"></div>
+  <div class="seg" style="margin:0 0 14px"><a class="on">${ic('image').replace('<svg','<svg style="width:18px;height:18px;fill:currentColor"')}Imagen</a><a>${ic('palette').replace('<svg','<svg style="width:18px;height:18px;fill:currentColor"')}Colores</a><a>${ic('text').replace('<svg','<svg style="width:18px;height:18px;fill:currentColor"')}Leyenda</a></div>
+  <div style="font-size:15px;color:var(--ink-2);line-height:1.45">Pellizca para cambiar el tamaño y arrastra para mover. Aparece una guía rosa al centrar.</div>
+  <div style="display:flex;gap:10px;margin-top:14px"><a class="pill ghost sm">Restablecer encuadre</a><a class="pill play sm">${ic('check')}Guardar</a></div>
+ </div>`,'background:#080808;color:#fff');
+const s3b2=phone(`${sb('#fff')}${queueBar(`<a class="ib" style="color:#fff">${ic('close')}</a>`,`<a class="pill dark sm" style="flex:none">Siguiente</a>`).replace('ttl"','ttl" style="color:#fff;text-align:center;font-size:17px"')}
+ <div style="flex:1;display:flex;justify-content:center;align-items:flex-start;padding-top:8px"><div style="width:230px;border-radius:12px;overflow:hidden">${editorCard({sel:'zig'})}</div></div>
+ <div class="sheet" style="position:relative">
+  <div class="grab"></div>
+  <div class="seg" style="margin:0 0 12px"><a>Imagen</a><a class="on">Colores</a><a>Leyenda</a></div>
+  <div style="display:flex;gap:8px"><span class="chip"><i style="background:#0E3B5C"></i>Marco</span><span class="chip"><i style="background:#F7EFE2"></i>Interior</span><span class="chip on"><i style="background:#F3D9A8"></i>Zigzag</span></div>
+  <div style="display:flex;gap:16px;margin-top:14px;align-items:center">
+   <div style="width:132px;height:132px;border-radius:50%;background:radial-gradient(circle,#fff 0,rgba(255,255,255,0) 70%),conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative;flex:none"><i style="position:absolute;left:84px;top:40px;width:20px;height:20px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);background:#F3D9A8"></i></div>
+   <div style="flex:1"><div class="field" style="height:48px;font-family:ui-monospace,monospace;font-size:16px">#F3D9A8</div><div class="lbl" style="margin:10px 0 6px">De la imagen</div><div class="swrow" style="gap:8px">${IMG_PAL.map(c=>`<span class="sw" style="width:28px;height:28px;background:${c}"></span>`).join('')}</div></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:16px"><a class="pill ghost sm">Colores automáticos</a><a class="pill play sm">${ic('check')}Listo</a></div>
+ </div>`,'background:#080808;color:#fff');
+const layer=(name,c,on)=>`<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;${on?'background:#FCEAF3;':''}border-radius:16px"><span class="sw" style="width:32px;height:32px;background:${c}"></span><div style="flex:1"><div style="font-size:17px">${name}</div><div style="font-size:13px;color:var(--ink-2)">${c}</div></div>${ic('chev').replace('<svg','<svg style="width:22px;height:22px;fill:#9A9A9A"')}</div>`;
+const s3c=tablet(`<div style="width:52%;background:#1A1A1A;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
+   <div style="position:absolute;top:18px;left:20px;right:20px;display:flex;justify-content:space-between;color:#fff;font-size:15px"><span>${ic('close').replace('<svg','<svg style="width:24px;height:24px;fill:#fff"')}</span><span>Carta 3 de 20</span><span></span></div>
+   <div style="width:440px;border-radius:18px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)">${editorCard({guides:GUIDES})}</div>
+   <div style="color:#A8A8A8;font-size:14px;margin-top:16px">Pellizca y arrastra la imagen · guía rosa al centrar</div></div>
+ <div style="flex:1;display:flex;flex-direction:column;padding:28px 32px 24px;gap:6px">
+   <div style="font-size:24px;font-weight:500;margin-bottom:8px">Diseño de la carta</div>
+   ${layer('Marco exterior','#0E3B5C',false)}${layer('Marco interior','#F7EFE2',false)}${layer('Zigzag','#F3D9A8',true)}
+   <div style="padding:6px 16px 0"><div class="lbl" style="margin-top:4px">De la imagen</div><div class="swrow">${sws(IMG_PAL,'#F3D9A8')}</div><div class="lbl">Lotería</div><div class="swrow">${sws(APP_PAL,'')}${custom}</div></div>
+   <div style="padding:6px 16px 0"><div class="lbl">Leyenda</div><div class="field">EL GALLO<span class="ct">8/30</span></div></div>
+   <div style="flex:1"></div>
+   <div style="display:flex;gap:10px"><a class="pill tonal">Anterior</a><a class="pill ghost">Siguiente</a><a class="pill play">${ic('check')}Guardar carta</a></div>
+ </div>`);
+document.getElementById('o3').innerHTML=
+ opt('A','Vista previa + panel','Carta arriba y debajo los elementos como chips, la paleta de la imagen, la de Lotería y el selector libre, y la leyenda. Todo visible sin hojas extra.',fig(s3a1,'Colores y leyenda')+fig(s3a2,'Arrastrando: guías y aviso de PNG'))+
+ opt('B','Inmersivo con hoja','Fondo noche como el juego: la carta manda. Una hoja inferior con pestañas Imagen | Colores | Leyenda; el selector libre tiene rueda y HEX.',fig(s3b1,'Pestaña Imagen')+fig(s3b2,'Pestaña Colores'))+
+ opt('C','Capas (tablet)','En la Tab: carta grande a la izquierda y lista de capas a la derecha (Marco exterior, Marco interior, Zigzag), con la paleta de la capa elegida. En teléfono se apila como la opción A.',fig(s3c,'Tablet horizontal'));
+
+/* ===== 4 · COMUNES ===== */
+const c1=phone(`${sb('#fff')}<div class="bar" style="color:#fff"><a class="ib">${ic('close')}</a><span class="ttl">Tabla 07 de 24</span><a class="ib">${ic('share')}</a></div>
+ <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:0 12px"><div style="background:#fff;padding:10px;border-radius:10px;transform:scale(1.06)"><div style="display:grid;grid-template-columns:repeat(4,86px);gap:5px">${Array.from({length:16},(_,i)=>`<div class="tile" style="border-radius:5px">${real((i*13+7)%54+1)}</div>`).join('')}</div></div></div>
+ <div style="text-align:center;color:#A8A8A8;font-size:14px;padding-bottom:16px">Pellizca para acercar · desliza para la siguiente tabla</div>${gest('#fff')}`,'background:#080808;color:#fff');
+const opRow=(t,s,on)=>`<div style="display:flex;align-items:center;gap:14px;padding:12px 0"><span style="width:22px;height:22px;border-radius:50%;border:2px solid ${on?'var(--rosa)':'#9A9A9A'};display:flex;align-items:center;justify-content:center">${on?'<i style="width:12px;height:12px;border-radius:50%;background:var(--rosa)"></i>':''}</span><div><div style="font-size:17px">${t}</div><div style="font-size:13px;color:var(--ink-2)">${s}</div></div></div>`;
+const c2=phone(compact('Mi primera lotería',`<a class="ib">${ic('back')}</a>`)+`<div class="grid4" style="flex:1">${Array.from({length:16},(_,i)=>`<div class="tile">${real(i+1)}</div>`).join('')}</div>`+
+ `<div class="scrim"></div><div class="sheet"><div class="grab"></div><div style="font-size:20px;font-weight:500">Exportar PDF</div>
+  <div class="lbl">Contenido</div><div style="display:flex;gap:8px"><span class="chip on">Tableros</span><span class="chip">Cartas</span><span class="chip">Ambos</span></div>
+  <div class="lbl">Dónde lo imprimes</div>${opRow('En casa · Carta','Margen blanco de 6.35 mm',true)}${opRow('En casa · A4','210 × 297 mm, margen de 6.35 mm',false)}${opRow('Imprenta · Carta','3 mm de rebase y área de corte',false)}
+  <a class="pill play" style="width:100%;margin-top:10px">${ic('share')}Compartir PDF</a></div>`);
+const c3=phone(compact('Mi primera lotería',`<a class="ib">${ic('back')}</a>`)+`<div class="grid4" style="flex:1">${Array.from({length:16},(_,i)=>`<div class="tile">${real(i+5)}</div>`).join('')}</div>`+
+ `<div class="scrim"></div><div class="dialog"><h5>¿Guardar cambios?</h5><p>Añadiste 3 cartas y eliminaste 1. Los 24 tableros se generarán de nuevo al azar con las 56 cartas. Si ya imprimiste tableros, vuelve a exportarlos.</p><div class="acts"><a>Cancelar</a><a class="fill">Guardar y rebarajar</a></div></div>`);
+const c4=phone(compact('Navidad familiar',`<a class="ib">${ic('back')}</a>`)+`<div class="grid4" style="flex:1">${[44,34,52,50,51,53,22,24,26,36,35,39].map(n=>`<div class="tile">${real(n)}</div>`).join('')}</div>`+
+ `<div class="scrim"></div><div class="dialog"><h5>Faltan 12 cartas</h5><p>Para 24 tableros 4×4 distintos, donde dos tableros compartan como máximo la mitad de sus cartas, necesitas al menos 36. Tienes 24.</p><div class="acts"><a>Menos tableros</a><a class="fill">Crear cartas</a></div></div>`);
+document.getElementById('o4').innerHTML=
+ opt('·','Visor de tablero','Fondo noche, tablero al centro, pellizcar para acercar, deslizar entre tablas y compartir.',fig(c1,'Tabla ampliada'))+
+ opt('·','Exportar PDF','Hoja inferior: tableros, cartas o ambos; casa Carta, casa A4 o imprenta Carta con rebase.',fig(c2,'Exportar'))+
+ opt('·','Aviso al guardar','Solo cuando cambia el conjunto de cartas. Editar el diseño de una carta no rebaraja.',fig(c3,'Rebarajar'))+
+ opt('·','Mínimo de cartas','Bloquea Jugar con tableros y Exportar; ofrece crear cartas o bajar el número de tableros.',fig(c4,'Validación'));
+
+/* ===== ★ SELECCIÓN FINAL ===== */
+const nav=on=>`<div class="bnav">${[['cards','Cartas'],['grid','Tableros'],['settings','Ajustes']].map(([i,t])=>t===on?`<a class="on"><span class="ic">${ic(i)}</span>${t}</a>`:`<a>${ic(i)}${t}</a>`).join('')}</div>`;
+const navFooter=(a,b)=>`<div class="footer" style="padding-bottom:12px">${a}${b}</div>`;
+const detWall=(g,sub)=>wall(g.n,sub,`<a class="ib">${ic('back')}</a><span style="flex:1"></span><a class="ib">${ic('more')}</a>`,300);
+const f1=phone(detWall(g0,'54 cartas · 24 tableros 4×4')+
+ `<div class="grid4" style="flex:1;overflow:hidden">${Array.from({length:20},(_,i)=>`<div class="tile">${real(i+1)}</div>`).join('')}</div>`+
+ navFooter(`<a class="pill tonal">${ic('add')}Crear cartas</a>`,`<a class="pill play">${ic('play')}Jugar</a>`)+nav('Cartas')+gest());
+const selT=[1,4,5];
+const f2=phone(wall('3 seleccionadas','de 54 cartas',`<span class="chip" style="background:transparent;color:#fff;box-shadow:none"><i style="background:transparent;box-shadow:0 0 0 2px #fff inset;width:20px;height:20px"></i>Todas</span><span style="flex:1"></span><a class="pill sm" style="flex:none;color:#fff">${ic('del')}Eliminar</a><a class="ib">${ic('close')}</a>`,300)+
+ `<div class="grid4" style="flex:1;overflow:hidden">${Array.from({length:20},(_,i)=>`<div class="tile" style="${selT.includes(i)?'transform:scale(.9);box-shadow:0 0 0 3px var(--rosa)':''}">${real(i+1)}</div>`).join('')}</div>`+nav('Cartas')+gest());
+const f3=phone(detWall(g1,'24 cartas · 24 tableros 4×4')+
+ `<div class="banner">${ic('warn')}<div style="flex:1"><b>Faltan 12 cartas</b> para 24 tableros 4×4 distintos. Mínimo: 36.<div class="prog"><i style="width:67%"></i></div><div style="font-size:13px;margin-top:6px">24 de 36 · o baja el número de tableros en Ajustes</div></div></div>`+
+ `<div class="grid4" style="flex:1;overflow:hidden">${[44,34,52,50,51,53,22,24,26,36,35,39].map(n=>`<div class="tile">${real(n)}</div>`).join('')}</div>`+
+ navFooter(`<a class="pill play" style="flex:1">${ic('add')}Crear cartas</a>`,'')+nav('Cartas')+gest());
+const f4=phone(detWall(g0,'24 tableros 4×4 · generados hoy 16:10')+
+ `<div style="flex:1;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 24px 0;align-content:start">${[1,2,3,4].map(n=>tableMini(n)).join('')}</div>`+
+ navFooter(`<a class="pill tonal">${ic('pdf')}Exportar PDF</a>`,`<a class="pill play">${ic('play')}Jugar</a>`)+nav('Tableros')+gest());
+const f5=phone(detWall(g0,'Ajustes del juego')+
+ `<div style="flex:1;padding:6px 24px 0;overflow:hidden"><div class="lbl">Nombre</div><div class="field">${g0.n}</div>
+  <div class="lbl">Tableros</div><div class="field">24<span class="ct">mín. 1 · máx. 60</span></div>
+  <div class="lbl">Tamaño</div><div class="seg" style="margin:0"><a class="on">4×4 · 16 cartas</a><a>3×3 · 9 cartas</a></div>
+  <div style="margin-top:14px;background:#fff;border-radius:18px;padding:12px 16px;font-size:15px;line-height:1.45;color:var(--ink-2)">Con 24 tableros 4×4 necesitas al menos <b style="color:var(--ink)">36 cartas</b>. Tienes 54. ${ic('check').replace('<svg','<svg style="width:18px;height:18px;fill:#00A35C;vertical-align:-4px"')}</div>
+  <div style="margin-top:12px"><a class="pill ghost" style="width:100%;color:var(--danger)">${ic('del')}Eliminar juego</a></div></div>`+nav('Ajustes')+gest());
+document.getElementById('o0').innerHTML=
+ opt('1','Inicio (B)','Lista One UI de juegos. Toca un juego para abrirlo; "Nuevo juego" pide nombre, tableros y tamaño.',fig(s1b,'Inicio'))+
+ opt('2','Detalle (B + barra y ajustes de C)','El muro rosa con nombre y números se mantiene en las tres pestañas; abajo, Cartas | Tableros | Ajustes. El footer cambia según la pestaña.',
+   fig(f1,'Cartas')+fig(f2,'Selección (pulsación larga)')+fig(f3,'Con faltantes')+fig(f4,'Tableros')+fig(f5,'Ajustes'))+
+ opt('3','Editor (A, y C en tablet)','Teléfono: vista previa y panel. Tablet: carta a la izquierda y capas a la derecha.',fig(s3a1,'Teléfono · colores')+fig(s3a2,'Teléfono · arrastrando')+fig(s3c,'Tablet'));
+</script>
+</body>
+</html>

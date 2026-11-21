@@ -69,7 +69,7 @@ import coil3.request.ImageRequest
 import coil3.size.Scale
 import com.diegoibarra.loteria.LoteriaViewModel
 import com.diegoibarra.loteria.R
-import com.diegoibarra.loteria.data.Card
+import com.diegoibarra.loteria.data.CardSpec
 import com.diegoibarra.loteria.ui.theme.Night
 import com.diegoibarra.loteria.ui.theme.Night3
 import com.diegoibarra.loteria.ui.theme.NightInk
@@ -83,6 +83,9 @@ import kotlin.math.absoluteValue
 fun GameScreen(vm: LoteriaViewModel) {
     val deck by vm.deck.collectAsStateWithLifecycle()
     val seed by vm.deckSeed.collectAsStateWithLifecycle()
+    val game by vm.current.collectAsStateWithLifecycle()
+    val gameId = game?.id ?: return
+    val numberOf = remember(game) { val g = game!!; { c: CardSpec -> g.numberOf(c.id) } }
 
     KeepScreenOn()
 
@@ -95,10 +98,11 @@ fun GameScreen(vm: LoteriaViewModel) {
                     deck = deck,
                     initialPage = vm.currentPage,
                     screen = screen,
-                    fileFor = vm::fileFor,
+                    fileFor = { vm.fileFor(gameId, it) },
+                    numberOf = numberOf,
                     onPageSettled = vm::onPageSettled,
                     onRestart = vm::restart,
-                    onExit = vm::exitGame,
+                    onExit = vm::exitPlay,
                 )
             }
         }
@@ -116,10 +120,11 @@ private fun KeepScreenOn() {
 
 @Composable
 private fun GameContent(
-    deck: List<Card>,
+    deck: List<CardSpec>,
     initialPage: Int,
     screen: ScreenClass,
-    fileFor: (Card) -> File,
+    fileFor: (CardSpec) -> File,
+    numberOf: (CardSpec) -> Int,
     onPageSettled: (Int) -> Unit,
     onRestart: () -> Unit,
     onExit: () -> Unit,
@@ -145,7 +150,7 @@ private fun GameContent(
             Box(Modifier.width(196.dp).fillMaxHeight().padding(start = 16.dp), contentAlignment = Alignment.CenterStart) {
                 Counter(current, total, large = false, alignStart = true)
             }
-            CardPager(pagerState, deck, fileFor, Modifier.weight(1f).fillMaxHeight())
+            CardPager(pagerState, deck, fileFor, numberOf, Modifier.weight(1f).fillMaxHeight())
             Column(
                 Modifier.width(196.dp).fillMaxHeight().padding(end = 16.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Bottom),
@@ -162,7 +167,7 @@ private fun GameContent(
                 large = screen.isTablet,
                 modifier = Modifier.fillMaxWidth().height(if (screen.isTablet) 112.dp else 92.dp),
             )
-            CardPager(pagerState, deck, fileFor, Modifier.weight(1f).fillMaxWidth())
+            CardPager(pagerState, deck, fileFor, numberOf, Modifier.weight(1f).fillMaxWidth())
             if (screen.isTablet) {
                 Row(
                     Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 24.dp),
@@ -281,7 +286,7 @@ private fun lerp(start: Float, stop: Float, fraction: Float) = start + (stop - s
 
 /** Carta grande al centro; las vecinas asoman atenuadas para invitar a deslizar. */
 @Composable
-private fun CardPager(state: PagerState, deck: List<Card>, fileFor: (Card) -> File, modifier: Modifier) {
+private fun CardPager(state: PagerState, deck: List<CardSpec>, fileFor: (CardSpec) -> File, numberOf: (CardSpec) -> Int, modifier: Modifier) {
     BoxWithConstraints(modifier) {
         val minPeek = 24.dp
         val gap = 16.dp
@@ -314,14 +319,14 @@ private fun CardPager(state: PagerState, deck: List<Card>, fileFor: (Card) -> Fi
                     },
                 contentAlignment = Alignment.Center,
             ) {
-                if (page < deck.size) GameCard(fileFor(deck[page]), page + 1, deck.size)
+                if (page < deck.size) GameCard(fileFor(deck[page]), deck[page], numberOf(deck[page]), page + 1, deck.size)
             }
         }
     }
 }
 
 @Composable
-private fun GameCard(file: File, position: Int, total: Int) {
+private fun GameCard(file: File, card: CardSpec, number: Int, position: Int, total: Int) {
     val context = LocalContext.current
     var ratio by remember(file) { mutableFloatStateOf(CARD_RATIO) }
     var failed by remember(file) { mutableStateOf(false) }
@@ -348,6 +353,6 @@ private fun GameCard(file: File, position: Int, total: Int) {
             if (size.width > 0f && size.height > 0f) ratio = size.width / size.height
         },
         onError = { failed = true },
-        modifier = Modifier.aspectRatio(ratio).clip(RoundedCornerShape(18.dp)),
+        modifier = Modifier.aspectRatio(ratio).cardNumber(card, number).clip(RoundedCornerShape(18.dp)),
     )
 }

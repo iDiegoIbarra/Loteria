@@ -278,6 +278,7 @@ fun OneUiDialog(
     widthFraction: Float,
     night: Boolean = false,
     festive: Boolean = false,
+    content: (@Composable () -> Unit)? = null,
 ) {
     BackHandler(enabled = visible, onBack = onDismiss)
     Box(Modifier.fillMaxSize()) {
@@ -321,13 +322,16 @@ fun OneUiDialog(
                             ),
                         ) {
                             Text(title, fontSize = 20.sp, fontWeight = FontWeight.Medium)
-                            Spacer(Modifier.height(10.dp))
-                            Text(
-                                message,
-                                fontSize = 16.sp,
-                                lineHeight = 23.sp,
-                                color = if (night) NightInk2 else Ink2,
-                            )
+                            if (message.isNotEmpty()) {
+                                Spacer(Modifier.height(10.dp))
+                                Text(
+                                    message,
+                                    fontSize = 16.sp,
+                                    lineHeight = 23.sp,
+                                    color = if (night) NightInk2 else Ink2,
+                                )
+                            }
+                            content?.invoke()
                             Spacer(Modifier.height(14.dp))
                             Row(
                                 Modifier.fillMaxWidth().height(52.dp),
